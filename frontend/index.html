@@ -1628,13 +1628,13 @@
                 linksHtml += `<a href="${escapeHtml(author.orcid)}" target="_blank" rel="noopener" class="popover-link orcid">ORCID</a>`;
             }
             
-            // View Profile button
+            // View Profile button - always show this as primary action
             const viewProfileBtn = `<button type="button" class="suggest-link-btn" style="border-style: solid; color: var(--accent); border-color: var(--accent);" onclick="openAuthorProfile(event, '${escapeHtml(author.name).replace(/'/g, "\\'")}')">👤 View Full Profile</button>`;
             
             // Suggest Link button
             const suggestBtn = `<button type="button" class="suggest-link-btn" onclick="openSuggestModal(event, '${escapeHtml(author.name).replace(/'/g, "\\'")}')">+ Add missing link</button>`;
 
-            // Add 'has-profile-links' class if author has any links
+            // Add 'has-profile-links' class if author has any links in this paper's data
             const linkClass = hasLinks ? 'author-name has-profile-links' : 'author-name';
 
             return `
@@ -1643,7 +1643,7 @@
                     <div class="author-popover">
                         <div class="popover-name">${escapeHtml(author.name)}</div>
                         ${author.affiliation ? `<div class="popover-affiliation">${escapeHtml(author.affiliation)}</div>` : ''}
-                        ${linksHtml ? `<div class="popover-links">${linksHtml}</div>` : '<div class="popover-links" style="color: var(--text-muted); font-size: 0.8rem;">No links available</div>'}
+                        ${linksHtml ? `<div class="popover-links">${linksHtml}</div>` : ''}
                         ${viewProfileBtn}
                         ${suggestBtn}
                     </div>

@@ -435,7 +435,7 @@
             border-top-color: var(--border);
         }
 
-        .author-name:hover .author-popover {
+        .author-popover.active {
             opacity: 1;
             visibility: visible;
             pointer-events: auto;
@@ -1037,7 +1037,7 @@
             showState('error');
         }
 
-        function renderAuthorWithLinks(author) {
+        function renderAuthorWithLinks(author, index) {
             const hasLinks = author.homepage || author.google_scholar || author.dblp || author.linkedin || author.orcid;
             
             if (!hasLinks) {
@@ -1047,23 +1047,23 @@
             let linksHtml = '';
             
             if (author.homepage) {
-                linksHtml += `<a href="${escapeHtml(author.homepage)}" target="_blank" rel="noopener" class="popover-link homepage" onclick="event.stopPropagation()">Homepage</a>`;
+                linksHtml += `<a href="${escapeHtml(author.homepage)}" target="_blank" rel="noopener" class="popover-link homepage">Homepage</a>`;
             }
             if (author.google_scholar) {
-                linksHtml += `<a href="${escapeHtml(author.google_scholar)}" target="_blank" rel="noopener" class="popover-link scholar" onclick="event.stopPropagation()">Scholar</a>`;
+                linksHtml += `<a href="${escapeHtml(author.google_scholar)}" target="_blank" rel="noopener" class="popover-link scholar">Scholar</a>`;
             }
             if (author.dblp) {
-                linksHtml += `<a href="${escapeHtml(author.dblp)}" target="_blank" rel="noopener" class="popover-link dblp" onclick="event.stopPropagation()">DBLP</a>`;
+                linksHtml += `<a href="${escapeHtml(author.dblp)}" target="_blank" rel="noopener" class="popover-link dblp">DBLP</a>`;
             }
             if (author.linkedin) {
-                linksHtml += `<a href="${escapeHtml(author.linkedin)}" target="_blank" rel="noopener" class="popover-link linkedin" onclick="event.stopPropagation()">LinkedIn</a>`;
+                linksHtml += `<a href="${escapeHtml(author.linkedin)}" target="_blank" rel="noopener" class="popover-link linkedin">LinkedIn</a>`;
             }
             if (author.orcid) {
-                linksHtml += `<a href="${escapeHtml(author.orcid)}" target="_blank" rel="noopener" class="popover-link orcid" onclick="event.stopPropagation()">ORCID</a>`;
+                linksHtml += `<a href="${escapeHtml(author.orcid)}" target="_blank" rel="noopener" class="popover-link orcid">ORCID</a>`;
             }
 
             return `
-                <span class="author-name has-links">
+                <span class="author-name has-links" onclick="toggleAuthorPopover(event, this)">
                     ${escapeHtml(author.name)}
                     <div class="author-popover">
                         <div class="popover-name">${escapeHtml(author.name)}</div>
@@ -1073,13 +1073,37 @@
                 </span>
             `;
         }
+        
+        function toggleAuthorPopover(event, element) {
+            event.stopPropagation();
+            
+            // Close any other open popovers
+            document.querySelectorAll('.author-popover.active').forEach(p => {
+                if (p !== element.querySelector('.author-popover')) {
+                    p.classList.remove('active');
+                }
+            });
+            
+            // Toggle this popover
+            const popover = element.querySelector('.author-popover');
+            popover.classList.toggle('active');
+        }
+        
+        // Close popover when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.author-name')) {
+                document.querySelectorAll('.author-popover.active').forEach(p => {
+                    p.classList.remove('active');
+                });
+            }
+        });
 
         function renderAuthors(authorsData) {
             if (!authorsData || authorsData.length === 0) {
                 return '<span class="paper-authors">Unknown authors</span>';
             }
 
-            const authorElements = authorsData.map(author => renderAuthorWithLinks(author));
+            const authorElements = authorsData.map((author, i) => renderAuthorWithLinks(author, i));
             return authorElements.join(', ');
         }
 

@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Search Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --bg-hover: #1a1a25;
+            --border: #2a2a3a;
+            --text-primary: #f0f0f5;
+            --text-secondary: #8888aa;
+            --text-muted: #555566;
+            --accent: #7c5cff;
+            --accent-glow: rgba(124, 92, 255, 0.3);
+            --accent-hover: #9580ff;
+            --conference-bg: #1e1e2e;
+            --success: #4ade80;
+            --warning: #fbbf24;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(180deg, #0f0f18 0%, var(--bg-dark) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 2rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        h1 {
+            font-family: 'Instrument Serif', Georgia, serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            font-style: italic;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-value {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Search Section */
+        .search-section {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            font-size: 1.1rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-glow);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-btn {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .search-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .search-btn:active {
+            transform: translateY(0);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+        }
+
+        /* Filters Sidebar */
+        .filters-sidebar {
+            position: sticky;
+            top: 140px;
+            height: fit-content;
+            max-height: calc(100vh - 160px);
+            overflow-y: auto;
+        }
+
+        .filter-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .year-range {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .year-input {
+            flex: 1;
+            padding: 0.6rem 0.75rem;
+            font-size: 0.9rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            text-align: center;
+            font-family: inherit;
+        }
+
+        .year-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .year-separator {
+            color: var(--text-muted);
+        }
+
+        .conference-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .conference-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .conference-item:hover {
+            opacity: 0.8;
+        }
+
+        .conference-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .conference-name {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .conference-count {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .clear-filters {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 0.85rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .clear-filters:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Results */
+        .results-section {
+            min-height: 400px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .results-count {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .results-count strong {
+            color: var(--text-primary);
+        }
+
+        /* Paper Cards */
+        .paper-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .paper-card:hover {
+            border-color: var(--accent);
+            background: var(--bg-hover);
+            transform: translateX(4px);
+        }
+
+        .paper-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .paper-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .paper-title a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .paper-title a:hover {
+            color: var(--accent);
+        }
+
+        .paper-score {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .paper-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .paper-authors {
+            color: var(--text-secondary);
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .paper-badges {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            padding: 0.25rem 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .badge-conference {
+            background: var(--conference-bg);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .badge-year {
+            background: var(--bg-dark);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .paper-abstract {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .paper-abstract.expanded {
+            -webkit-line-clamp: unset;
+        }
+
+        .read-more {
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: inline-block;
+        }
+
+        .read-more:hover {
+            text-decoration: underline;
+        }
+
+        /* States */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state, .error-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3, .error-state h3 {
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .initial-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .initial-state h3 {
+            font-family: 'Instrument Serif', Georgia, serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            font-style: italic;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .search-tips {
+            text-align: left;
+            max-width: 400px;
+            margin: 2rem auto 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .search-tips h4 {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .search-tips ul {
+            list-style: none;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .search-tips li {
+            padding: 0.4rem 0;
+        }
+
+        .search-tips code {
+            background: var(--bg-dark);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--accent);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .pagination button {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            padding: 0.6rem 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-sidebar {
+                position: static;
+                max-height: none;
+            }
+
+            .conference-list {
+                max-height: 200px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .stats-bar {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .paper-meta {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Paper Search Engine</h1>
+            <p class="subtitle">Search across 236,000+ academic papers from top AI/ML conferences</p>
+            <div class="stats-bar" id="stats-bar">
+                <div class="stat-item">
+                    <span>Papers:</span>
+                    <span class="stat-value" id="stat-papers">-</span>
+                </div>
+                <div class="stat-item">
+                    <span>Conferences:</span>
+                    <span class="stat-value" id="stat-conferences">-</span>
+                </div>
+                <div class="stat-item">
+                    <span>Years:</span>
+                    <span class="stat-value" id="stat-years">-</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="search-section">
+        <div class="search-container">
+            <div class="search-input-wrapper">
+                <input 
+                    type="text" 
+                    id="search-input" 
+                    class="search-input" 
+                    placeholder='Search papers... Try "transformer" or "neural network"'
+                    autocomplete="off"
+                >
+            </div>
+            <button id="search-btn" class="search-btn">Search</button>
+        </div>
+    </section>
+
+    <main>
+        <aside class="filters-sidebar">
+            <div class="filter-section">
+                <h3 class="filter-title">Year Range</h3>
+                <div class="year-range">
+                    <input type="number" id="year-min" class="year-input" placeholder="From" min="1987" max="2026">
+                    <span class="year-separator">-</span>
+                    <input type="number" id="year-max" class="year-input" placeholder="To" min="1987" max="2026">
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3 class="filter-title">Conferences</h3>
+                <div class="conference-list" id="conference-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <button class="clear-filters" id="clear-filters">Clear All Filters</button>
+        </aside>
+
+        <section class="results-section" id="results-section">
+            <div class="initial-state" id="initial-state">
+                <h3>Discover Academic Research</h3>
+                <p>Enter keywords to search across papers from CVPR, NeurIPS, ICLR, ICML, and more.</p>
+                <div class="search-tips">
+                    <h4>Search Tips</h4>
+                    <ul>
+                        <li>Use quotes for exact phrases: <code>"attention mechanism"</code></li>
+                        <li>Combine keywords: <code>transformer vision</code></li>
+                        <li>Filter by conference or year range</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="loading" id="loading-state" style="display: none;">
+                <div class="spinner"></div>
+                <p>Searching papers...</p>
+            </div>
+
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <div class="empty-icon">&#128269;</div>
+                <h3>No papers found</h3>
+                <p>Try different keywords or adjust your filters.</p>
+            </div>
+
+            <div class="error-state" id="error-state" style="display: none;">
+                <div class="empty-icon">&#9888;</div>
+                <h3>Something went wrong</h3>
+                <p id="error-message">Unable to fetch results. Please try again.</p>
+            </div>
+
+            <div id="results-container" style="display: none;">
+                <div class="results-header">
+                    <span class="results-count" id="results-count"></span>
+                </div>
+                <div id="results-list"></div>
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Configuration
+        const API_BASE = 'http://127.0.0.1:5000';
+        const RESULTS_PER_PAGE = 20;
+
+        // State
+        let currentQuery = '';
+        let currentOffset = 0;
+        let totalResults = 0;
+        let selectedConferences = new Set();
+
+        // DOM Elements
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const yearMinInput = document.getElementById('year-min');
+        const yearMaxInput = document.getElementById('year-max');
+        const conferenceList = document.getElementById('conference-list');
+        const clearFiltersBtn = document.getElementById('clear-filters');
+        const resultsSection = document.getElementById('results-section');
+        const initialState = document.getElementById('initial-state');
+        const loadingState = document.getElementById('loading-state');
+        const emptyState = document.getElementById('empty-state');
+        const errorState = document.getElementById('error-state');
+        const resultsContainer = document.getElementById('results-container');
+        const resultsList = document.getElementById('results-list');
+        const resultsCount = document.getElementById('results-count');
+        const pagination = document.getElementById('pagination');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            loadConferences();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            searchBtn.addEventListener('click', () => search());
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') search();
+            });
+            clearFiltersBtn.addEventListener('click', clearFilters);
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/api/stats`);
+                const stats = await response.json();
+                document.getElementById('stat-papers').textContent = stats.total_papers.toLocaleString();
+                document.getElementById('stat-conferences').textContent = stats.conferences;
+                document.getElementById('stat-years').textContent = `${stats.year_min} - ${stats.year_max}`;
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+
+        async function loadConferences() {
+            try {
+                const response = await fetch(`${API_BASE}/api/conferences`);
+                const conferences = await response.json();
+                renderConferences(conferences);
+            } catch (error) {
+                console.error('Failed to load conferences:', error);
+            }
+        }
+
+        function renderConferences(conferences) {
+            conferenceList.innerHTML = conferences.map(conf => `
+                <label class="conference-item">
+                    <input type="checkbox" class="conference-checkbox" value="${conf.name}">
+                    <span class="conference-name">${conf.name}</span>
+                    <span class="conference-count">${conf.count.toLocaleString()}</span>
+                </label>
+            `).join('');
+
+            // Add event listeners
+            conferenceList.querySelectorAll('.conference-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        selectedConferences.add(e.target.value);
+                    } else {
+                        selectedConferences.delete(e.target.value);
+                    }
+                    if (currentQuery) search();
+                });
+            });
+        }
+
+        function clearFilters() {
+            yearMinInput.value = '';
+            yearMaxInput.value = '';
+            selectedConferences.clear();
+            conferenceList.querySelectorAll('.conference-checkbox').forEach(cb => cb.checked = false);
+            if (currentQuery) search();
+        }
+
+        async function search(offset = 0) {
+            const query = searchInput.value.trim();
+            if (!query) return;
+
+            currentQuery = query;
+            currentOffset = offset;
+
+            // Show loading
+            showState('loading');
+
+            try {
+                const body = {
+                    query: query,
+                    limit: RESULTS_PER_PAGE,
+                    offset: offset
+                };
+
+                // Add filters
+                if (selectedConferences.size > 0) {
+                    body.conferences = Array.from(selectedConferences);
+                }
+                if (yearMinInput.value) {
+                    body.year_min = parseInt(yearMinInput.value);
+                }
+                if (yearMaxInput.value) {
+                    body.year_max = parseInt(yearMaxInput.value);
+                }
+
+                const response = await fetch(`${API_BASE}/api/search`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    showError(data.error);
+                    return;
+                }
+
+                totalResults = data.total;
+
+                if (data.results.length === 0) {
+                    showState('empty');
+                } else {
+                    renderResults(data);
+                    showState('results');
+                }
+            } catch (error) {
+                console.error('Search failed:', error);
+                showError('Unable to connect to the server. Make sure the backend is running.');
+            }
+        }
+
+        function showState(state) {
+            initialState.style.display = state === 'initial' ? 'block' : 'none';
+            loadingState.style.display = state === 'loading' ? 'flex' : 'none';
+            emptyState.style.display = state === 'empty' ? 'block' : 'none';
+            errorState.style.display = state === 'error' ? 'block' : 'none';
+            resultsContainer.style.display = state === 'results' ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            document.getElementById('error-message').textContent = message;
+            showState('error');
+        }
+
+        function renderResults(data) {
+            // Update count
+            resultsCount.innerHTML = `Found <strong>${data.total.toLocaleString()}</strong> papers`;
+
+            // Render papers
+            resultsList.innerHTML = data.results.map(paper => `
+                <article class="paper-card">
+                    <div class="paper-header">
+                        <h2 class="paper-title">
+                            ${paper.url 
+                                ? `<a href="${paper.url}" target="_blank" rel="noopener">${escapeHtml(paper.title)}</a>`
+                                : escapeHtml(paper.title)
+                            }
+                        </h2>
+                        <span class="paper-score">Score: ${paper.score}</span>
+                    </div>
+                    <div class="paper-meta">
+                        <span class="paper-authors">${escapeHtml(paper.authors) || 'Unknown authors'}</span>
+                        <div class="paper-badges">
+                            <span class="badge badge-conference">${paper.conference}</span>
+                            <span class="badge badge-year">${paper.year}</span>
+                        </div>
+                    </div>
+                    ${paper.abstract ? `
+                        <p class="paper-abstract" id="abstract-${paper.id}">${escapeHtml(paper.abstract)}</p>
+                        ${paper.abstract.length > 300 ? `
+                            <span class="read-more" onclick="toggleAbstract(${paper.id})">Read more</span>
+                        ` : ''}
+                    ` : ''}
+                </article>
+            `).join('');
+
+            // Render pagination
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(totalResults / RESULTS_PER_PAGE);
+            const currentPage = Math.floor(currentOffset / RESULTS_PER_PAGE) + 1;
+
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            pagination.innerHTML = `
+                <button ${currentPage <= 1 ? 'disabled' : ''} onclick="search(${(currentPage - 2) * RESULTS_PER_PAGE})">
+                    Previous
+                </button>
+                <span class="page-info">Page ${currentPage} of ${totalPages}</span>
+                <button ${currentPage >= totalPages ? 'disabled' : ''} onclick="search(${currentPage * RESULTS_PER_PAGE})">
+                    Next
+                </button>
+            `;
+        }
+
+        function toggleAbstract(paperId) {
+            const abstract = document.getElementById(`abstract-${paperId}`);
+            const readMore = abstract.nextElementSibling;
+            
+            if (abstract.classList.contains('expanded')) {
+                abstract.classList.remove('expanded');
+                readMore.textContent = 'Read more';
+            } else {
+                abstract.classList.add('expanded');
+                readMore.textContent = 'Show less';
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

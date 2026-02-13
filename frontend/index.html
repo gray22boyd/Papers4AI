@@ -900,6 +900,10 @@
                 if (e.key === 'Enter') search();
             });
             clearFiltersBtn.addEventListener('click', clearFilters);
+            
+            // Year inputs trigger search on change
+            yearMinInput.addEventListener('change', () => search());
+            yearMaxInput.addEventListener('change', () => search());
         }
 
         async function loadStats() {
@@ -941,7 +945,8 @@
                     } else {
                         selectedConferences.delete(e.target.value);
                     }
-                    if (currentQuery) search();
+                    // Search whenever filters change (even without query)
+                    search();
                 });
             });
         }
@@ -951,12 +956,22 @@
             yearMaxInput.value = '';
             selectedConferences.clear();
             conferenceList.querySelectorAll('.conference-checkbox').forEach(cb => cb.checked = false);
-            if (currentQuery) search();
+            
+            // If there's a query, re-search without filters
+            // If no query, show initial state
+            if (currentQuery || searchInput.value.trim()) {
+                search();
+            } else {
+                showState('initial');
+            }
         }
 
         async function search(offset = 0) {
             const query = searchInput.value.trim();
-            if (!query) return;
+            const hasFilters = selectedConferences.size > 0 || yearMinInput.value || yearMaxInput.value;
+            
+            // Need either a query or filters
+            if (!query && !hasFilters) return;
 
             currentQuery = query;
             currentOffset = offset;

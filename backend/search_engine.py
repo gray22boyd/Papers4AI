@@ -239,16 +239,17 @@ class PaperSearchEngine:
         offset: int = 0,
     ) -> dict:
         """
-        Search papers by query with Boolean operators.
+        Search papers by query with Boolean operators, or browse by filters.
 
         Supported syntax:
             - Phrases: "world models"
             - AND: world AND models (implicit between words)
             - OR: video OR image
             - NOT: transformer NOT vision
+            - Empty query with filters: browse by conference/year
 
         Args:
-            query: Search query with optional Boolean operators
+            query: Search query with optional Boolean operators (can be empty if filters set)
             conferences: List of conference names to filter by
             year_min: Minimum year filter
             year_max: Maximum year filter
@@ -258,19 +259,14 @@ class PaperSearchEngine:
         Returns:
             Dict with results, total count, and query info
         """
-        if not query or not query.strip():
-            return {
-                "results": [],
-                "total": 0,
-                "query": query,
-                "offset": offset,
-                "limit": limit,
-            }
-
-        # Parse Boolean query
-        bq = BooleanQuery.parse(query)
-
-        if not bq.has_terms():
+        query = query.strip() if query else ""
+        has_filters = conferences or year_min or year_max
+        
+        # Parse Boolean query (if any)
+        bq = BooleanQuery.parse(query) if query else None
+        
+        # If no query and no filters, return empty
+        if not query and not has_filters:
             return {
                 "results": [],
                 "total": 0,
@@ -294,21 +290,22 @@ class PaperSearchEngine:
             if year_max and paper_year > year_max:
                 continue
 
-            # Combine title and abstract for matching
-            text = (paper.get("title") or "") + " " + (paper.get("abstract") or "")
-            
-            # Check Boolean match
-            if not bq.matches(text):
-                continue
+            # If we have a query, check Boolean match
+            if bq and bq.has_terms():
+                text = (paper.get("title") or "") + " " + (paper.get("abstract") or "")
+                if not bq.matches(text):
+                    continue
+                score = self._score_paper(paper, bq)
+            else:
+                # No query, just browsing by filters - sort by year
+                score = paper.get("year", 0)
 
-            # Calculate score
-            score = self._score_paper(paper, bq)
-
-            if score > 0:
-                scored_papers.append((score, paper))
+            scored_papers.append((score, paper))
 
         # Sort by score (descending), then by year (descending)
         scored_papers.sort(key=lambda x: (-x[0], -x[1].get("year", 0)))
+        
+        # For browse mode (no query), we already sorted by year via score
 
         total = len(scored_papers)
 

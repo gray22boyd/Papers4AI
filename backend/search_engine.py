@@ -178,8 +178,10 @@ class PaperSearchEngine:
                         "years": set(),
                         "first_author_count": 0,
                         "coauthors": defaultdict(int),
-                        "affiliations": set(),
-                        "links": {}
+                        "latest_affiliation": None,
+                        "latest_affiliation_year": 0,
+                        "links": {},
+                        "links_year": 0  # Track when we got the links
                     }
                 
                 author_entry = self.authors_index[normalized]
@@ -190,14 +192,17 @@ class PaperSearchEngine:
                 if idx == 0:  # First author
                     author_entry["first_author_count"] += 1
                 
-                # Collect affiliations
-                if author.get("affiliation"):
-                    author_entry["affiliations"].add(author["affiliation"])
+                # Keep only the MOST RECENT affiliation
+                if author.get("affiliation") and paper_year >= author_entry["latest_affiliation_year"]:
+                    author_entry["latest_affiliation"] = author["affiliation"]
+                    author_entry["latest_affiliation_year"] = paper_year
                 
-                # Collect links (keep the most recent)
-                for link_type in ["homepage", "google_scholar", "dblp", "linkedin", "orcid"]:
-                    if author.get(link_type):
-                        author_entry["links"][link_type] = author[link_type]
+                # Collect links (keep from the most recent paper)
+                if paper_year >= author_entry["links_year"]:
+                    for link_type in ["homepage", "google_scholar", "dblp", "linkedin", "orcid"]:
+                        if author.get(link_type):
+                            author_entry["links"][link_type] = author[link_type]
+                            author_entry["links_year"] = paper_year
                 
                 # Track co-authors
                 for other_author in authors_data:
@@ -208,7 +213,6 @@ class PaperSearchEngine:
         # Convert sets to sorted lists for JSON serialization
         for author_data in self.authors_index.values():
             author_data["years"] = sorted(author_data["years"])
-            author_data["affiliations"] = list(author_data["affiliations"])
         
         print(f"Indexed {len(self.authors_index):,} unique authors")
 
@@ -370,7 +374,7 @@ class PaperSearchEngine:
             "paper_count": len(papers),
             "first_author_count": author_data["first_author_count"],
             "year_range": [min(author_data["years"]), max(author_data["years"])] if author_data["years"] else [],
-            "affiliations": author_data["affiliations"],
+            "affiliation": author_data.get("latest_affiliation"),  # Only most recent
             "links": author_data["links"],
             "conferences": [{"name": c, "count": n} for c, n in conferences],
             "coauthors": [{"name": c, "count": n} for c, n in coauthors],
@@ -508,12 +512,34 @@ class PaperSearchEngine:
         # Format results
         results = []
         for score, paper in paginated:
+            # Enrich authors_data with links from the author index
+            enriched_authors = []
+            for author in paper.get("authors_data", []):
+                author_name = author.get("name", "").strip()
+                normalized = self._normalize_author_name(author_name)
+                
+                # Start with paper-level data
+                enriched = dict(author)
+                
+                # Add links from author index if available
+                if normalized in self.authors_index:
+                    index_data = self.authors_index[normalized]
+                    # Add any missing links from the index
+                    for link_type in ["homepage", "google_scholar", "dblp", "linkedin", "orcid"]:
+                        if link_type not in enriched and link_type in index_data.get("links", {}):
+                            enriched[link_type] = index_data["links"][link_type]
+                    # Add affiliation if missing
+                    if not enriched.get("affiliation") and index_data.get("latest_affiliation"):
+                        enriched["affiliation"] = index_data["latest_affiliation"]
+                
+                enriched_authors.append(enriched)
+            
             results.append({
                 "id": paper["id"],
                 "title": paper.get("title", ""),
                 "abstract": paper.get("abstract", ""),
                 "authors": paper.get("authors", ""),
-                "authors_data": paper.get("authors_data", []),
+                "authors_data": enriched_authors,
                 "year": paper.get("year", 0),
                 "conference": paper.get("conference", ""),
                 "url": paper.get("url", ""),

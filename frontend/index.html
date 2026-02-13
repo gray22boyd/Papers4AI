@@ -1897,10 +1897,10 @@
             // Name
             document.getElementById('profile-name').textContent = profile.name;
             
-            // Affiliation - show only top 2 most common
+            // Affiliation - show only the most recent one
             const affiliationEl = document.getElementById('profile-affiliation');
-            if (profile.affiliations && profile.affiliations.length > 0) {
-                affiliationEl.textContent = profile.affiliations.slice(0, 2).join(' • ');
+            if (profile.affiliation) {
+                affiliationEl.textContent = profile.affiliation;
                 affiliationEl.style.display = 'block';
             } else {
                 affiliationEl.style.display = 'none';

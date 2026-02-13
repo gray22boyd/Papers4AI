@@ -923,6 +923,221 @@
             border-color: var(--accent);
             color: var(--accent);
         }
+
+        /* Author Profile Page */
+        .author-profile {
+            display: none;
+        }
+
+        .author-profile.active {
+            display: block;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .back-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .profile-header {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-name {
+            font-family: 'Instrument Serif', Georgia, serif;
+            font-size: 2rem;
+            font-weight: 400;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-affiliation {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .profile-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .profile-link:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.2);
+        }
+
+        .profile-link.homepage { background: rgba(16, 185, 129, 0.15); color: var(--link-homepage); }
+        .profile-link.scholar { background: rgba(66, 133, 244, 0.15); color: var(--link-scholar); }
+        .profile-link.dblp { background: rgba(0, 79, 159, 0.15); color: var(--link-dblp); }
+        .profile-link.linkedin { background: rgba(10, 102, 194, 0.15); color: var(--link-linkedin); }
+        .profile-link.orcid { background: rgba(166, 206, 57, 0.15); color: var(--link-orcid); }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-card .stat-number {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .profile-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .export-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            background: var(--accent);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .export-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .coauthor-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .coauthor-tag {
+            padding: 0.4rem 0.8rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .coauthor-tag:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .coauthor-tag .count {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-left: 0.3rem;
+        }
+
+        .conference-breakdown {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .conference-tag {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--conference-bg);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+        }
+
+        .conference-tag .conf-name {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .conference-tag .conf-count {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .profile-papers-list .paper-card {
+            padding: 1rem 1.25rem;
+        }
+
+        .paper-card .first-author-badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--success);
+            font-size: 0.7rem;
+            font-weight: 600;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
@@ -1029,6 +1244,36 @@
                 <div id="results-list"></div>
                 <div class="pagination" id="pagination"></div>
             </div>
+
+            <!-- Author Profile View -->
+            <div class="author-profile" id="author-profile">
+                <button class="back-btn" onclick="closeAuthorProfile()">← Back to Search</button>
+                
+                <div class="profile-header">
+                    <h1 class="profile-name" id="profile-name"></h1>
+                    <div class="profile-affiliation" id="profile-affiliation"></div>
+                    <div class="profile-links" id="profile-links"></div>
+                    <div class="profile-stats" id="profile-stats"></div>
+                </div>
+
+                <div class="profile-section">
+                    <h3 class="section-title">Top Co-Authors</h3>
+                    <div class="coauthor-list" id="profile-coauthors"></div>
+                </div>
+
+                <div class="profile-section">
+                    <h3 class="section-title">Conference Breakdown</h3>
+                    <div class="conference-breakdown" id="profile-conferences"></div>
+                </div>
+
+                <div class="profile-section">
+                    <h3 class="section-title">
+                        <span>Publications</span>
+                        <button class="export-btn" id="export-csv-btn">📥 Export CSV</button>
+                    </h3>
+                    <div class="profile-papers-list" id="profile-papers"></div>
+                </div>
+            </div>
         </section>
     </main>
 
@@ -1083,6 +1328,7 @@
         let currentOffset = 0;
         let totalResults = 0;
         let selectedConferences = new Set();
+        let currentAuthorProfile = null;
 
         // DOM Elements
         const searchInput = document.getElementById('search-input');
@@ -1269,14 +1515,6 @@
             }
         }
 
-        function showState(state) {
-            initialState.style.display = state === 'initial' ? 'block' : 'none';
-            loadingState.style.display = state === 'loading' ? 'flex' : 'none';
-            emptyState.style.display = state === 'empty' ? 'block' : 'none';
-            errorState.style.display = state === 'error' ? 'block' : 'none';
-            resultsContainer.style.display = state === 'results' ? 'block' : 'none';
-        }
-
         function showError(message) {
             document.getElementById('error-message').textContent = message;
             showState('error');
@@ -1303,7 +1541,10 @@
                 linksHtml += `<a href="${escapeHtml(author.orcid)}" target="_blank" rel="noopener" class="popover-link orcid">ORCID</a>`;
             }
             
-            // Always show "Suggest Link" button to add missing links
+            // View Profile button
+            const viewProfileBtn = `<button type="button" class="suggest-link-btn" style="border-style: solid; color: var(--accent); border-color: var(--accent);" onclick="openAuthorProfile(event, '${escapeHtml(author.name).replace(/'/g, "\\'")}')">👤 View Full Profile</button>`;
+            
+            // Suggest Link button
             const suggestBtn = `<button type="button" class="suggest-link-btn" onclick="openSuggestModal(event, '${escapeHtml(author.name).replace(/'/g, "\\'")}')">+ Add missing link</button>`;
 
             return `
@@ -1313,6 +1554,7 @@
                         <div class="popover-name">${escapeHtml(author.name)}</div>
                         ${author.affiliation ? `<div class="popover-affiliation">${escapeHtml(author.affiliation)}</div>` : ''}
                         ${linksHtml ? `<div class="popover-links">${linksHtml}</div>` : '<div class="popover-links" style="color: var(--text-muted); font-size: 0.8rem;">No links available</div>'}
+                        ${viewProfileBtn}
                         ${suggestBtn}
                     </div>
                 </span>
@@ -1522,6 +1764,172 @@
                 alert('Failed to submit suggestion. Please try again.');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Submit';
+            }
+        }
+        
+        // Author Profile Functions
+        async function openAuthorProfile(event, authorName) {
+            event.stopPropagation();
+            
+            // Close any open popovers
+            document.querySelectorAll('.author-popover.active').forEach(p => p.classList.remove('active'));
+            
+            // Show loading in profile area
+            showState('loading');
+            document.getElementById('author-profile').classList.remove('active');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/author/${encodeURIComponent(authorName)}`);
+                const profile = await response.json();
+                
+                if (profile.error) {
+                    showError(profile.error);
+                    return;
+                }
+                
+                currentAuthorProfile = profile;
+                renderAuthorProfile(profile);
+                
+                // Show profile view
+                showState('none');
+                document.getElementById('author-profile').classList.add('active');
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Failed to load author profile:', error);
+                showError('Failed to load author profile. Please try again.');
+            }
+        }
+        
+        function renderAuthorProfile(profile) {
+            // Name
+            document.getElementById('profile-name').textContent = profile.name;
+            
+            // Affiliation
+            const affiliationEl = document.getElementById('profile-affiliation');
+            if (profile.affiliations && profile.affiliations.length > 0) {
+                affiliationEl.textContent = profile.affiliations.join(' • ');
+                affiliationEl.style.display = 'block';
+            } else {
+                affiliationEl.style.display = 'none';
+            }
+            
+            // Links
+            const linksEl = document.getElementById('profile-links');
+            let linksHtml = '';
+            if (profile.links.homepage) {
+                linksHtml += `<a href="${escapeHtml(profile.links.homepage)}" target="_blank" class="profile-link homepage">🏠 Homepage</a>`;
+            }
+            if (profile.links.google_scholar) {
+                linksHtml += `<a href="${escapeHtml(profile.links.google_scholar)}" target="_blank" class="profile-link scholar">🎓 Google Scholar</a>`;
+            }
+            if (profile.links.dblp) {
+                linksHtml += `<a href="${escapeHtml(profile.links.dblp)}" target="_blank" class="profile-link dblp">📚 DBLP</a>`;
+            }
+            if (profile.links.linkedin) {
+                linksHtml += `<a href="${escapeHtml(profile.links.linkedin)}" target="_blank" class="profile-link linkedin">💼 LinkedIn</a>`;
+            }
+            if (profile.links.orcid) {
+                linksHtml += `<a href="${escapeHtml(profile.links.orcid)}" target="_blank" class="profile-link orcid">🆔 ORCID</a>`;
+            }
+            linksEl.innerHTML = linksHtml || '<span style="color: var(--text-muted);">No profile links available</span>';
+            
+            // Stats
+            const statsEl = document.getElementById('profile-stats');
+            const yearRange = profile.year_range.length === 2 ? `${profile.year_range[0]} - ${profile.year_range[1]}` : 'N/A';
+            statsEl.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${profile.paper_count}</div>
+                    <div class="stat-label">Total Papers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${profile.first_author_count}</div>
+                    <div class="stat-label">First Author</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${profile.conferences.length}</div>
+                    <div class="stat-label">Conferences</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${yearRange}</div>
+                    <div class="stat-label">Active Years</div>
+                </div>
+            `;
+            
+            // Co-authors
+            const coauthorsEl = document.getElementById('profile-coauthors');
+            if (profile.coauthors && profile.coauthors.length > 0) {
+                coauthorsEl.innerHTML = profile.coauthors.map(ca => `
+                    <span class="coauthor-tag" onclick="openAuthorProfile(event, '${escapeHtml(ca.name).replace(/'/g, "\\'")}')">
+                        ${escapeHtml(ca.name)}<span class="count">(${ca.count})</span>
+                    </span>
+                `).join('');
+            } else {
+                coauthorsEl.innerHTML = '<span style="color: var(--text-muted);">No co-authors found</span>';
+            }
+            
+            // Conferences
+            const conferencesEl = document.getElementById('profile-conferences');
+            conferencesEl.innerHTML = profile.conferences.map(conf => `
+                <div class="conference-tag">
+                    <span class="conf-name">${displayConferenceName(conf.name)}</span>
+                    <span class="conf-count">${conf.count} papers</span>
+                </div>
+            `).join('');
+            
+            // Papers
+            const papersEl = document.getElementById('profile-papers');
+            papersEl.innerHTML = profile.papers.map(paper => `
+                <article class="paper-card">
+                    <div class="paper-header">
+                        <h2 class="paper-title">
+                            ${paper.url 
+                                ? `<a href="${escapeHtml(paper.url)}" target="_blank">${escapeHtml(paper.title)}</a>`
+                                : escapeHtml(paper.title)
+                            }
+                            ${paper.is_first_author ? '<span class="first-author-badge">1st Author</span>' : ''}
+                        </h2>
+                    </div>
+                    <div class="paper-meta">
+                        <span class="paper-authors">${escapeHtml(paper.authors)}</span>
+                        <div class="paper-badges">
+                            <span class="badge badge-conference">${displayConferenceName(paper.conference)}</span>
+                            <span class="badge badge-year">${paper.year}</span>
+                        </div>
+                    </div>
+                </article>
+            `).join('');
+            
+            // Export CSV button
+            document.getElementById('export-csv-btn').onclick = () => {
+                window.open(`${API_BASE}/api/author/${encodeURIComponent(profile.name)}/export`, '_blank');
+            };
+        }
+        
+        function closeAuthorProfile() {
+            document.getElementById('author-profile').classList.remove('active');
+            currentAuthorProfile = null;
+            
+            // Show previous state (results or initial)
+            if (totalResults > 0) {
+                showState('results');
+            } else {
+                showState('initial');
+            }
+        }
+        
+        function showState(state) {
+            initialState.style.display = state === 'initial' ? 'block' : 'none';
+            loadingState.style.display = state === 'loading' ? 'flex' : 'none';
+            emptyState.style.display = state === 'empty' ? 'block' : 'none';
+            errorState.style.display = state === 'error' ? 'block' : 'none';
+            resultsContainer.style.display = state === 'results' ? 'block' : 'none';
+            
+            // Hide author profile when showing other states
+            if (state !== 'none') {
+                document.getElementById('author-profile').classList.remove('active');
             }
         }
     </script>

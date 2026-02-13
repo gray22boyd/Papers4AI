@@ -146,7 +146,71 @@ class PaperSearchEngine:
         self.papers_by_id = {}
         self.conferences = set()
         self.years = set()
+        self.authors_index = {}  # Normalized name -> author data
         self._loaded = False
+
+    def _normalize_author_name(self, name: str) -> str:
+        """Normalize author name for consistent indexing."""
+        return name.strip().lower()
+
+    def _build_author_index(self):
+        """Build index mapping authors to their papers and metadata."""
+        print("Building author index...")
+        
+        for paper in self.papers:
+            authors_data = paper.get("authors_data", [])
+            paper_year = paper.get("year", 0)
+            paper_conf = paper.get("conference", "")
+            
+            # Check if this author is first author
+            for idx, author in enumerate(authors_data):
+                author_name = author.get("name", "").strip()
+                if not author_name:
+                    continue
+                
+                normalized = self._normalize_author_name(author_name)
+                
+                if normalized not in self.authors_index:
+                    self.authors_index[normalized] = {
+                        "name": author_name,  # Keep original casing
+                        "papers": [],
+                        "conferences": defaultdict(int),
+                        "years": set(),
+                        "first_author_count": 0,
+                        "coauthors": defaultdict(int),
+                        "affiliations": set(),
+                        "links": {}
+                    }
+                
+                author_entry = self.authors_index[normalized]
+                author_entry["papers"].append(paper["id"])
+                author_entry["conferences"][paper_conf] += 1
+                author_entry["years"].add(paper_year)
+                
+                if idx == 0:  # First author
+                    author_entry["first_author_count"] += 1
+                
+                # Collect affiliations
+                if author.get("affiliation"):
+                    author_entry["affiliations"].add(author["affiliation"])
+                
+                # Collect links (keep the most recent)
+                for link_type in ["homepage", "google_scholar", "dblp", "linkedin", "orcid"]:
+                    if author.get(link_type):
+                        author_entry["links"][link_type] = author[link_type]
+                
+                # Track co-authors
+                for other_author in authors_data:
+                    other_name = other_author.get("name", "").strip()
+                    if other_name and other_name != author_name:
+                        author_entry["coauthors"][other_name] += 1
+        
+        # Convert sets to sorted lists for JSON serialization
+        for author_data in self.authors_index.values():
+            author_data["years"] = sorted(author_data["years"])
+            author_data["affiliations"] = list(author_data["affiliations"])
+        
+        print(f"Indexed {len(self.authors_index):,} unique authors")
 
     def load_data(self, filepath: Path = PAPERS_JSON):
         """Load papers from JSON file into memory."""
@@ -164,6 +228,9 @@ class PaperSearchEngine:
                 self.conferences.add(paper["conference"])
             if paper.get("year"):
                 self.years.add(paper["year"])
+
+        # Build author index
+        self._build_author_index()
 
         self._loaded = True
         print(f"Loaded {len(self.papers):,} papers from {len(self.conferences)} conferences")
@@ -192,6 +259,123 @@ class PaperSearchEngine:
     def get_paper(self, paper_id: int) -> Optional[dict]:
         """Get a single paper by ID."""
         return self.papers_by_id.get(paper_id)
+
+    def search_authors(self, query: str, limit: int = 20, offset: int = 0) -> dict:
+        """
+        Search for authors by name.
+        
+        Args:
+            query: Author name to search for (partial match)
+            limit: Maximum results
+            offset: Pagination offset
+            
+        Returns:
+            Dict with matching authors and their stats
+        """
+        query_lower = query.strip().lower()
+        if not query_lower:
+            return {"results": [], "total": 0}
+        
+        # Find matching authors
+        matches = []
+        for normalized_name, author_data in self.authors_index.items():
+            if query_lower in normalized_name:
+                paper_count = len(author_data["papers"])
+                matches.append({
+                    "name": author_data["name"],
+                    "paper_count": paper_count,
+                    "first_author_count": author_data["first_author_count"],
+                    "conferences": dict(author_data["conferences"]),
+                    "year_range": [min(author_data["years"]), max(author_data["years"])] if author_data["years"] else [],
+                    "affiliations": author_data["affiliations"][:3],  # Top 3
+                    "has_links": bool(author_data["links"]),
+                })
+        
+        # Sort by paper count (most prolific first)
+        matches.sort(key=lambda x: -x["paper_count"])
+        
+        total = len(matches)
+        paginated = matches[offset:offset + limit]
+        
+        return {
+            "results": paginated,
+            "total": total,
+            "query": query,
+            "offset": offset,
+            "limit": limit,
+        }
+
+    def get_author_profile(self, author_name: str) -> Optional[dict]:
+        """
+        Get full profile for an author.
+        
+        Args:
+            author_name: Author name (case-insensitive)
+            
+        Returns:
+            Full author profile with papers, co-authors, stats
+        """
+        normalized = self._normalize_author_name(author_name)
+        
+        if normalized not in self.authors_index:
+            # Try partial match
+            for name in self.authors_index:
+                if normalized in name or name in normalized:
+                    normalized = name
+                    break
+            else:
+                return None
+        
+        author_data = self.authors_index[normalized]
+        
+        # Get full paper objects
+        papers = []
+        for paper_id in author_data["papers"]:
+            paper = self.papers_by_id.get(paper_id)
+            if paper:
+                # Check if first author
+                authors_data = paper.get("authors_data", [])
+                is_first_author = (
+                    len(authors_data) > 0 and 
+                    self._normalize_author_name(authors_data[0].get("name", "")) == normalized
+                )
+                
+                papers.append({
+                    "id": paper["id"],
+                    "title": paper.get("title", ""),
+                    "year": paper.get("year", 0),
+                    "conference": paper.get("conference", ""),
+                    "url": paper.get("url", ""),
+                    "is_first_author": is_first_author,
+                    "authors": paper.get("authors", ""),
+                })
+        
+        # Sort papers by year (newest first)
+        papers.sort(key=lambda x: -x["year"])
+        
+        # Get top co-authors
+        coauthors = sorted(
+            author_data["coauthors"].items(),
+            key=lambda x: -x[1]
+        )[:10]
+        
+        # Conference breakdown
+        conferences = sorted(
+            author_data["conferences"].items(),
+            key=lambda x: -x[1]
+        )
+        
+        return {
+            "name": author_data["name"],
+            "paper_count": len(papers),
+            "first_author_count": author_data["first_author_count"],
+            "year_range": [min(author_data["years"]), max(author_data["years"])] if author_data["years"] else [],
+            "affiliations": author_data["affiliations"],
+            "links": author_data["links"],
+            "conferences": [{"name": c, "count": n} for c, n in conferences],
+            "coauthors": [{"name": c, "count": n} for c, n in coauthors],
+            "papers": papers,
+        }
 
     def _score_paper(self, paper: dict, bq: BooleanQuery) -> float:
         """Calculate relevance score for a paper."""

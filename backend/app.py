@@ -108,6 +108,65 @@ def get_paper(paper_id: int):
     return jsonify({"error": "Paper not found"}), 404
 
 
+@app.route("/api/authors", methods=["GET"])
+def search_authors():
+    """Search for authors by name."""
+    query = request.args.get("q", "").strip()
+    limit = min(int(request.args.get("limit", 20)), 100)
+    offset = max(int(request.args.get("offset", 0)), 0)
+    
+    if not query:
+        return jsonify({"error": "Query parameter 'q' is required"}), 400
+    
+    results = search_engine.search_authors(query, limit=limit, offset=offset)
+    return jsonify(results)
+
+
+@app.route("/api/author/<path:author_name>", methods=["GET"])
+def get_author_profile(author_name: str):
+    """Get full profile for an author."""
+    profile = search_engine.get_author_profile(author_name)
+    if profile:
+        return jsonify(profile)
+    return jsonify({"error": "Author not found"}), 404
+
+
+@app.route("/api/author/<path:author_name>/export", methods=["GET"])
+def export_author_papers(author_name: str):
+    """Export author's papers as CSV."""
+    profile = search_engine.get_author_profile(author_name)
+    if not profile:
+        return jsonify({"error": "Author not found"}), 404
+    
+    # Build CSV
+    import io
+    import csv
+    
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Title", "Year", "Conference", "First Author", "All Authors", "URL"])
+    
+    for paper in profile["papers"]:
+        writer.writerow([
+            paper["title"],
+            paper["year"],
+            paper["conference"],
+            "Yes" if paper["is_first_author"] else "No",
+            paper["authors"],
+            paper["url"],
+        ])
+    
+    csv_content = output.getvalue()
+    
+    # Return as downloadable CSV
+    from flask import Response
+    return Response(
+        csv_content,
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={author_name.replace(' ', '_')}_papers.csv"}
+    )
+
+
 @app.route("/api/health", methods=["GET"])
 def health():
     """Health check endpoint."""

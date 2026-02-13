@@ -12,6 +12,7 @@
             --bg-dark: #0a0a0f;
             --bg-card: #12121a;
             --bg-hover: #1a1a25;
+            --bg-popover: #1e1e2a;
             --border: #2a2a3a;
             --text-primary: #f0f0f5;
             --text-secondary: #8888aa;
@@ -22,6 +23,11 @@
             --conference-bg: #1e1e2e;
             --success: #4ade80;
             --warning: #fbbf24;
+            --link-scholar: #4285f4;
+            --link-homepage: #10b981;
+            --link-linkedin: #0a66c2;
+            --link-orcid: #a6ce39;
+            --link-dblp: #004f9f;
         }
 
         * {
@@ -359,11 +365,127 @@
             color: var(--text-secondary);
             flex: 1;
             min-width: 200px;
+            line-height: 1.8;
+        }
+
+        /* Author with links styling */
+        .author-name {
+            position: relative;
+            cursor: default;
+            transition: color 0.2s;
+        }
+
+        .author-name.has-links {
+            cursor: pointer;
+            border-bottom: 1px dotted var(--text-muted);
+        }
+
+        .author-name.has-links:hover {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        /* Author Popover */
+        .author-popover {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-popover);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            min-width: 200px;
+            max-width: 300px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
+
+        .author-popover::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: var(--border);
+        }
+
+        .author-name:hover .author-popover {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .popover-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .popover-affiliation {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .popover-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .popover-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.35rem 0.6rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .popover-link:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.2);
+        }
+
+        .popover-link.homepage {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--link-homepage);
+        }
+
+        .popover-link.scholar {
+            background: rgba(66, 133, 244, 0.15);
+            color: var(--link-scholar);
+        }
+
+        .popover-link.linkedin {
+            background: rgba(10, 102, 194, 0.15);
+            color: var(--link-linkedin);
+        }
+
+        .popover-link.orcid {
+            background: rgba(166, 206, 57, 0.15);
+            color: var(--link-orcid);
+        }
+
+        .popover-link.dblp {
+            background: rgba(0, 79, 159, 0.15);
+            color: var(--link-dblp);
         }
 
         .paper-badges {
             display: flex;
             gap: 0.5rem;
+            flex-shrink: 0;
         }
 
         .badge {
@@ -411,6 +533,33 @@
 
         .read-more:hover {
             text-decoration: underline;
+        }
+
+        /* Paper Links */
+        .paper-links {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .paper-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.35rem 0.7rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .paper-link:hover {
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         /* States */
@@ -554,6 +703,18 @@
             .conference-list {
                 max-height: 200px;
             }
+
+            .author-popover {
+                position: fixed;
+                bottom: auto;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+
+            .author-popover::after {
+                display: none;
+            }
         }
 
         @media (max-width: 600px) {
@@ -644,6 +805,7 @@
                         <li>Use quotes for exact phrases: <code>"attention mechanism"</code></li>
                         <li>Combine keywords: <code>transformer vision</code></li>
                         <li>Filter by conference or year range</li>
+                        <li>Hover over author names to see their profiles</li>
                     </ul>
                 </div>
             </div>
@@ -838,37 +1000,104 @@
             showState('error');
         }
 
+        function renderAuthorWithLinks(author) {
+            const hasLinks = author.homepage || author.google_scholar || author.dblp || author.linkedin || author.orcid;
+            
+            if (!hasLinks) {
+                return `<span class="author-name">${escapeHtml(author.name)}</span>`;
+            }
+
+            let linksHtml = '';
+            
+            if (author.homepage) {
+                linksHtml += `<a href="${escapeHtml(author.homepage)}" target="_blank" rel="noopener" class="popover-link homepage" onclick="event.stopPropagation()">Homepage</a>`;
+            }
+            if (author.google_scholar) {
+                linksHtml += `<a href="${escapeHtml(author.google_scholar)}" target="_blank" rel="noopener" class="popover-link scholar" onclick="event.stopPropagation()">Scholar</a>`;
+            }
+            if (author.dblp) {
+                linksHtml += `<a href="${escapeHtml(author.dblp)}" target="_blank" rel="noopener" class="popover-link dblp" onclick="event.stopPropagation()">DBLP</a>`;
+            }
+            if (author.linkedin) {
+                linksHtml += `<a href="${escapeHtml(author.linkedin)}" target="_blank" rel="noopener" class="popover-link linkedin" onclick="event.stopPropagation()">LinkedIn</a>`;
+            }
+            if (author.orcid) {
+                linksHtml += `<a href="${escapeHtml(author.orcid)}" target="_blank" rel="noopener" class="popover-link orcid" onclick="event.stopPropagation()">ORCID</a>`;
+            }
+
+            return `
+                <span class="author-name has-links">
+                    ${escapeHtml(author.name)}
+                    <div class="author-popover">
+                        <div class="popover-name">${escapeHtml(author.name)}</div>
+                        ${author.affiliation ? `<div class="popover-affiliation">${escapeHtml(author.affiliation)}</div>` : ''}
+                        <div class="popover-links">${linksHtml}</div>
+                    </div>
+                </span>
+            `;
+        }
+
+        function renderAuthors(authorsData) {
+            if (!authorsData || authorsData.length === 0) {
+                return '<span class="paper-authors">Unknown authors</span>';
+            }
+
+            const authorElements = authorsData.map(author => renderAuthorWithLinks(author));
+            return authorElements.join(', ');
+        }
+
         function renderResults(data) {
             // Update count
             resultsCount.innerHTML = `Found <strong>${data.total.toLocaleString()}</strong> papers`;
 
             // Render papers
-            resultsList.innerHTML = data.results.map(paper => `
-                <article class="paper-card">
-                    <div class="paper-header">
-                        <h2 class="paper-title">
-                            ${paper.url 
-                                ? `<a href="${paper.url}" target="_blank" rel="noopener">${escapeHtml(paper.title)}</a>`
-                                : escapeHtml(paper.title)
-                            }
-                        </h2>
-                        <span class="paper-score">Score: ${paper.score}</span>
-                    </div>
-                    <div class="paper-meta">
-                        <span class="paper-authors">${escapeHtml(paper.authors) || 'Unknown authors'}</span>
-                        <div class="paper-badges">
-                            <span class="badge badge-conference">${paper.conference}</span>
-                            <span class="badge badge-year">${paper.year}</span>
+            resultsList.innerHTML = data.results.map(paper => {
+                // Render additional links (github, project)
+                let paperLinksHtml = '';
+                if (paper.github || paper.project || paper.url) {
+                    paperLinksHtml = '<div class="paper-links">';
+                    if (paper.url) {
+                        paperLinksHtml += `<a href="${escapeHtml(paper.url)}" target="_blank" rel="noopener" class="paper-link">Paper</a>`;
+                    }
+                    if (paper.github) {
+                        const ghUrl = paper.github.startsWith('http') ? paper.github : `https://${paper.github}`;
+                        paperLinksHtml += `<a href="${escapeHtml(ghUrl)}" target="_blank" rel="noopener" class="paper-link">GitHub</a>`;
+                    }
+                    if (paper.project) {
+                        const projUrl = paper.project.startsWith('http') ? paper.project : `https://${paper.project}`;
+                        paperLinksHtml += `<a href="${escapeHtml(projUrl)}" target="_blank" rel="noopener" class="paper-link">Project</a>`;
+                    }
+                    paperLinksHtml += '</div>';
+                }
+
+                return `
+                    <article class="paper-card">
+                        <div class="paper-header">
+                            <h2 class="paper-title">
+                                ${paper.url 
+                                    ? `<a href="${escapeHtml(paper.url)}" target="_blank" rel="noopener">${escapeHtml(paper.title)}</a>`
+                                    : escapeHtml(paper.title)
+                                }
+                            </h2>
+                            <span class="paper-score">Score: ${paper.score}</span>
                         </div>
-                    </div>
-                    ${paper.abstract ? `
-                        <p class="paper-abstract" id="abstract-${paper.id}">${escapeHtml(paper.abstract)}</p>
-                        ${paper.abstract.length > 300 ? `
-                            <span class="read-more" onclick="toggleAbstract(${paper.id})">Read more</span>
+                        <div class="paper-meta">
+                            <span class="paper-authors">${renderAuthors(paper.authors_data)}</span>
+                            <div class="paper-badges">
+                                <span class="badge badge-conference">${paper.conference}</span>
+                                <span class="badge badge-year">${paper.year}</span>
+                            </div>
+                        </div>
+                        ${paper.abstract ? `
+                            <p class="paper-abstract" id="abstract-${paper.id}">${escapeHtml(paper.abstract)}</p>
+                            ${paper.abstract.length > 300 ? `
+                                <span class="read-more" onclick="toggleAbstract(${paper.id})">Read more</span>
+                            ` : ''}
                         ` : ''}
-                    ` : ''}
-                </article>
-            `).join('');
+                        ${paperLinksHtml}
+                    </article>
+                `;
+            }).join('');
 
             // Render pagination
             renderPagination();

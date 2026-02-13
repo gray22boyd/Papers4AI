@@ -191,9 +191,12 @@ class PaperSearchEngine:
                 "title": paper.get("title", ""),
                 "abstract": paper.get("abstract", ""),
                 "authors": paper.get("authors", ""),
+                "authors_data": paper.get("authors_data", []),  # Structured author data with links
                 "year": paper.get("year", 0),
                 "conference": paper.get("conference", ""),
                 "url": paper.get("url", ""),
+                "github": paper.get("github", ""),
+                "project": paper.get("project", ""),
                 "score": round(score, 2),
             })
 

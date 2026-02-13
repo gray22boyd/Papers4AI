@@ -23,9 +23,9 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Data files (optional - uncomment if you don't want to track data)
-# data/*.json
-# data/*.csv
+# Data files (too large for GitHub - regenerate with: python scripts/aggregate_papers.py)
+data/*.json
+data/*.csv
 
 # Logs
 *.log

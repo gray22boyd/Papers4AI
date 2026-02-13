@@ -1,0 +1,6 @@
+# Papers4AI robots.txt
+User-agent: *
+Allow: /
+
+# Prevent excessive API crawling
+Disallow: /api/

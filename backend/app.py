@@ -215,13 +215,12 @@ def suggest_link():
             with open(SUGGESTIONS_FILE, "r", encoding="utf-8") as f:
                 suggestions = json.load(f)
         
-        # Add new suggestion
+        # Add new suggestion (no IP stored for privacy)
         suggestion = {
             "author_name": author_name,
             "link_type": link_type,
             "link_url": link_url,
             "submitted_at": datetime.utcnow().isoformat(),
-            "ip": get_remote_address(),
             "status": "pending"
         }
         suggestions.append(suggestion)

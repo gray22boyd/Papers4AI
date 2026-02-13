@@ -1,0 +1,8 @@
+[build]
+builder = "nixpacks"
+buildCommand = "pip install -r requirements.txt && git clone --depth 1 https://github.com/papercopilot/paperlists.git ../paperlists && mkdir -p data && python scripts/aggregate_papers.py"
+
+[deploy]
+startCommand = "cd backend && gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 300

@@ -402,18 +402,25 @@
         /* Author with links styling */
         .author-name {
             position: relative;
-            cursor: default;
-            transition: color 0.2s;
-        }
-
-        .author-name.has-links {
             cursor: pointer;
+            transition: color 0.2s;
             border-bottom: 1px dotted var(--text-muted);
         }
 
-        .author-name.has-links:hover {
+        .author-name:hover {
             color: var(--accent);
             border-bottom-color: var(--accent);
+        }
+
+        /* Authors WITH profile links - bold + colored underline */
+        .author-name.has-profile-links {
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .author-name.has-profile-links:hover {
+            color: var(--accent-hover);
         }
 
         /* Author Popover */
@@ -1547,8 +1554,11 @@
             // Suggest Link button
             const suggestBtn = `<button type="button" class="suggest-link-btn" onclick="openSuggestModal(event, '${escapeHtml(author.name).replace(/'/g, "\\'")}')">+ Add missing link</button>`;
 
+            // Add 'has-profile-links' class if author has any links
+            const linkClass = hasLinks ? 'author-name has-profile-links' : 'author-name';
+
             return `
-                <span class="author-name has-links" onclick="toggleAuthorPopover(event, this)">
+                <span class="${linkClass}" onclick="toggleAuthorPopover(event, this)">
                     ${escapeHtml(author.name)}
                     <div class="author-popover">
                         <div class="popover-name">${escapeHtml(author.name)}</div>

@@ -336,10 +336,10 @@ class PaperSearchEngine:
             "offset": offset,
             "limit": limit,
             "parsed": {
-                "phrases": bq.phrases,
-                "and_terms": bq.and_terms,
-                "or_terms": bq.or_terms,
-                "not_terms": bq.not_terms,
+                "phrases": bq.phrases if bq else [],
+                "and_terms": bq.and_terms if bq else [],
+                "or_terms": bq.or_terms if bq else [],
+                "not_terms": bq.not_terms if bq else [],
             }
         }
 

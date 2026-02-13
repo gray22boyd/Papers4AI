@@ -50,6 +50,22 @@
             --link-dblp: #004f9f;
         }
 
+        /* Light Mode */
+        [data-theme="light"] {
+            --bg-dark: #f5f5f7;
+            --bg-card: #ffffff;
+            --bg-hover: #f0f0f5;
+            --bg-popover: #ffffff;
+            --border: #e0e0e8;
+            --text-primary: #1a1a2e;
+            --text-secondary: #555577;
+            --text-muted: #888899;
+            --accent: #6b4ce6;
+            --accent-glow: rgba(107, 76, 230, 0.2);
+            --accent-hover: #5a3dd1;
+            --conference-bg: #f0f0ff;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -116,6 +132,35 @@
         .stat-value {
             color: var(--accent);
             font-weight: 600;
+        }
+
+        /* Theme Toggle */
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent);
+        }
+
+        .theme-toggle-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
         }
 
         /* Search Section */
@@ -1150,8 +1195,16 @@
 <body>
     <header>
         <div class="header-content">
-            <h1>Papers4AI</h1>
-            <p class="subtitle">Search 236,000+ academic papers from CVPR, NeurIPS, ICLR, ICML & more</p>
+            <div class="header-top">
+                <div>
+                    <h1>Papers4AI</h1>
+                    <p class="subtitle">Search 236,000+ academic papers from CVPR, NeurIPS, ICLR, ICML & more</p>
+                </div>
+                <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">
+                    <span id="theme-icon">☀️</span>
+                    <span class="theme-toggle-label" id="theme-label">Light</span>
+                </button>
+            </div>
             <div class="stats-bar" id="stats-bar">
                 <div class="stat-item">
                     <span>Papers:</span>
@@ -1166,7 +1219,7 @@
                     <span class="stat-value" id="stat-years">-</span>
                 </div>
             </div>
-        </div>
+        </div><!-- end header-content -->
     </header>
 
     <section class="search-section">
@@ -1364,7 +1417,34 @@
             loadStats();
             loadConferences();
             setupEventListeners();
+            initTheme();
         });
+
+        // Theme Management
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            setTheme(savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            const icon = document.getElementById('theme-icon');
+            const label = document.getElementById('theme-label');
+            if (theme === 'light') {
+                icon.textContent = '🌙';
+                label.textContent = 'Dark';
+            } else {
+                icon.textContent = '☀️';
+                label.textContent = 'Light';
+            }
+        }
 
         function setupEventListeners() {
             searchBtn.addEventListener('click', () => search());
@@ -1817,10 +1897,10 @@
             // Name
             document.getElementById('profile-name').textContent = profile.name;
             
-            // Affiliation
+            // Affiliation - show only top 2 most common
             const affiliationEl = document.getElementById('profile-affiliation');
             if (profile.affiliations && profile.affiliations.length > 0) {
-                affiliationEl.textContent = profile.affiliations.join(' • ');
+                affiliationEl.textContent = profile.affiliations.slice(0, 2).join(' • ');
                 affiliationEl.style.display = 'block';
             } else {
                 affiliationEl.style.display = 'none';

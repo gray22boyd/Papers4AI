@@ -1,16 +1,141 @@
 """
 Search Engine for Academic Papers
 =================================
-Simple but effective keyword search with relevance scoring.
+Keyword search with Boolean operators and relevance scoring.
+
+Supports:
+- Phrase search: "world models"
+- AND operator: world AND models (both required)
+- OR operator: video OR image (either matches)
+- NOT operator: transformer NOT vision (exclude term)
+- Combinations: "world models" AND video NOT image
 """
 
 import json
 import re
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Tuple
 from collections import defaultdict
 
 from config import PAPERS_JSON, TITLE_WEIGHT, ABSTRACT_WEIGHT, PHRASE_MULTIPLIER
+
+
+class BooleanQuery:
+    """Parsed Boolean query with AND, OR, NOT terms."""
+    
+    def __init__(self):
+        self.and_terms: List[str] = []      # All must match
+        self.or_terms: List[str] = []       # At least one must match
+        self.not_terms: List[str] = []      # None must match
+        self.phrases: List[str] = []        # Exact phrase matches
+    
+    @classmethod
+    def parse(cls, query: str) -> 'BooleanQuery':
+        """
+        Parse a query string with Boolean operators.
+        
+        Examples:
+            "world models" AND video -> phrase "world models" AND term "video"
+            transformer OR attention -> either term matches
+            neural NOT network -> must have "neural", must NOT have "network"
+            world models -> implicit AND between terms
+        """
+        bq = cls()
+        
+        # Extract quoted phrases first
+        phrase_pattern = r'"([^"]+)"'
+        for match in re.finditer(phrase_pattern, query):
+            bq.phrases.append(match.group(1).lower())
+        
+        # Remove phrases from query for further processing
+        remaining = re.sub(phrase_pattern, " PHRASE ", query)
+        
+        # Normalize operators (make case-insensitive)
+        remaining = re.sub(r'\bAND\b', ' AND ', remaining, flags=re.IGNORECASE)
+        remaining = re.sub(r'\bOR\b', ' OR ', remaining, flags=re.IGNORECASE)
+        remaining = re.sub(r'\bNOT\b', ' NOT ', remaining, flags=re.IGNORECASE)
+        
+        # Split by OR first (lowest precedence)
+        or_groups = re.split(r'\s+OR\s+', remaining, flags=re.IGNORECASE)
+        
+        if len(or_groups) > 1:
+            # We have OR clauses
+            for group in or_groups:
+                group = group.strip()
+                if group and group != "PHRASE":
+                    # Check for NOT within OR group
+                    if ' NOT ' in group.upper():
+                        parts = re.split(r'\s+NOT\s+', group, flags=re.IGNORECASE)
+                        if parts[0].strip() and parts[0].strip() != "PHRASE":
+                            bq.or_terms.append(parts[0].strip().lower())
+                        for not_part in parts[1:]:
+                            if not_part.strip() and not_part.strip() != "PHRASE":
+                                bq.not_terms.append(not_part.strip().lower())
+                    else:
+                        # Clean up AND within OR group
+                        terms = re.split(r'\s+AND\s+', group, flags=re.IGNORECASE)
+                        for term in terms:
+                            term = term.strip()
+                            if term and term != "PHRASE":
+                                bq.or_terms.append(term.lower())
+        else:
+            # No OR, process AND and NOT
+            remaining = or_groups[0]
+            
+            # Split by NOT
+            not_split = re.split(r'\s+NOT\s+', remaining, flags=re.IGNORECASE)
+            
+            # First part (before any NOT) contains AND terms
+            and_part = not_split[0]
+            and_terms = re.split(r'\s+AND\s+', and_part, flags=re.IGNORECASE)
+            
+            for term in and_terms:
+                # Split remaining spaces into individual words
+                words = term.strip().split()
+                for word in words:
+                    word = word.strip()
+                    if word and word != "PHRASE" and len(word) >= 2:
+                        bq.and_terms.append(word.lower())
+            
+            # Everything after NOT goes to not_terms
+            for not_part in not_split[1:]:
+                words = not_part.strip().split()
+                for word in words:
+                    word = word.strip()
+                    if word and word != "PHRASE" and len(word) >= 2:
+                        bq.not_terms.append(word.lower())
+        
+        return bq
+    
+    def matches(self, text: str) -> bool:
+        """Check if text matches the Boolean query."""
+        text_lower = text.lower()
+        
+        # Check NOT terms first (exclusions)
+        for term in self.not_terms:
+            if term in text_lower:
+                return False
+        
+        # Check phrases (all must match)
+        for phrase in self.phrases:
+            if phrase not in text_lower:
+                return False
+        
+        # Check AND terms (all must match)
+        for term in self.and_terms:
+            if term not in text_lower:
+                return False
+        
+        # Check OR terms (at least one must match, if any exist)
+        if self.or_terms:
+            if not any(term in text_lower for term in self.or_terms):
+                return False
+        
+        return True
+    
+    def has_terms(self) -> bool:
+        """Check if query has any search terms."""
+        return bool(self.and_terms or self.or_terms or self.phrases)
 
 
 class PaperSearchEngine:
@@ -68,46 +193,39 @@ class PaperSearchEngine:
         """Get a single paper by ID."""
         return self.papers_by_id.get(paper_id)
 
-    def _parse_query(self, query: str) -> tuple:
-        """Parse query into phrases and keywords."""
-        phrases = []
-        keywords = []
-
-        # Extract quoted phrases
-        phrase_pattern = r'"([^"]+)"'
-        for match in re.finditer(phrase_pattern, query):
-            phrases.append(match.group(1).lower())
-
-        # Remove phrases and get remaining keywords
-        remaining = re.sub(phrase_pattern, "", query)
-        keywords = [w.lower() for w in remaining.split() if len(w) >= 2]
-
-        return phrases, keywords
-
-    def _score_paper(self, paper: dict, phrases: list, keywords: list) -> float:
+    def _score_paper(self, paper: dict, bq: BooleanQuery) -> float:
         """Calculate relevance score for a paper."""
         title = (paper.get("title") or "").lower()
         abstract = (paper.get("abstract") or "").lower()
+        text = title + " " + abstract
         score = 0.0
 
-        # Score phrase matches (higher priority)
-        for phrase in phrases:
+        # Score phrase matches (highest priority)
+        for phrase in bq.phrases:
             if phrase in title:
                 score += TITLE_WEIGHT * PHRASE_MULTIPLIER * 2
             if phrase in abstract:
                 score += ABSTRACT_WEIGHT * PHRASE_MULTIPLIER
 
-        # Score keyword matches
-        for keyword in keywords:
-            # Title matches
-            title_count = title.count(keyword)
+        # Score AND terms
+        for term in bq.and_terms:
+            title_count = title.count(term)
             if title_count > 0:
-                score += TITLE_WEIGHT * min(title_count, 3)  # Cap at 3 matches
-
-            # Abstract matches
-            abstract_count = abstract.count(keyword)
+                score += TITLE_WEIGHT * min(title_count, 3)
+            
+            abstract_count = abstract.count(term)
             if abstract_count > 0:
-                score += ABSTRACT_WEIGHT * min(abstract_count, 5)  # Cap at 5 matches
+                score += ABSTRACT_WEIGHT * min(abstract_count, 5)
+
+        # Score OR terms (bonus for each match)
+        for term in bq.or_terms:
+            title_count = title.count(term)
+            if title_count > 0:
+                score += TITLE_WEIGHT * min(title_count, 3)
+            
+            abstract_count = abstract.count(term)
+            if abstract_count > 0:
+                score += ABSTRACT_WEIGHT * min(abstract_count, 5)
 
         return score
 
@@ -121,10 +239,16 @@ class PaperSearchEngine:
         offset: int = 0,
     ) -> dict:
         """
-        Search papers by query with optional filters.
+        Search papers by query with Boolean operators.
+
+        Supported syntax:
+            - Phrases: "world models"
+            - AND: world AND models (implicit between words)
+            - OR: video OR image
+            - NOT: transformer NOT vision
 
         Args:
-            query: Search query (supports phrases in quotes)
+            query: Search query with optional Boolean operators
             conferences: List of conference names to filter by
             year_min: Minimum year filter
             year_max: Maximum year filter
@@ -143,9 +267,10 @@ class PaperSearchEngine:
                 "limit": limit,
             }
 
-        phrases, keywords = self._parse_query(query)
+        # Parse Boolean query
+        bq = BooleanQuery.parse(query)
 
-        if not phrases and not keywords:
+        if not bq.has_terms():
             return {
                 "results": [],
                 "total": 0,
@@ -159,7 +284,7 @@ class PaperSearchEngine:
         conferences_set = set(conferences) if conferences else None
 
         for paper in self.papers:
-            # Apply filters
+            # Apply conference/year filters
             if conferences_set and paper.get("conference") not in conferences_set:
                 continue
 
@@ -169,8 +294,15 @@ class PaperSearchEngine:
             if year_max and paper_year > year_max:
                 continue
 
+            # Combine title and abstract for matching
+            text = (paper.get("title") or "") + " " + (paper.get("abstract") or "")
+            
+            # Check Boolean match
+            if not bq.matches(text):
+                continue
+
             # Calculate score
-            score = self._score_paper(paper, phrases, keywords)
+            score = self._score_paper(paper, bq)
 
             if score > 0:
                 scored_papers.append((score, paper))
@@ -191,7 +323,7 @@ class PaperSearchEngine:
                 "title": paper.get("title", ""),
                 "abstract": paper.get("abstract", ""),
                 "authors": paper.get("authors", ""),
-                "authors_data": paper.get("authors_data", []),  # Structured author data with links
+                "authors_data": paper.get("authors_data", []),
                 "year": paper.get("year", 0),
                 "conference": paper.get("conference", ""),
                 "url": paper.get("url", ""),
@@ -206,8 +338,12 @@ class PaperSearchEngine:
             "query": query,
             "offset": offset,
             "limit": limit,
-            "phrases": phrases,
-            "keywords": keywords,
+            "parsed": {
+                "phrases": bq.phrases,
+                "and_terms": bq.and_terms,
+                "or_terms": bq.or_terms,
+                "not_terms": bq.not_terms,
+            }
         }
 
 

@@ -364,15 +364,6 @@
             color: var(--accent);
         }
 
-        .paper-score {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.6rem;
-            background: var(--accent-glow);
-            color: var(--accent);
-            border-radius: 20px;
-            white-space: nowrap;
-        }
-
         .paper-meta {
             display: flex;
             flex-wrap: wrap;
@@ -932,7 +923,7 @@
             conferenceList.innerHTML = conferences.map(conf => `
                 <label class="conference-item">
                     <input type="checkbox" class="conference-checkbox" value="${conf.name}">
-                    <span class="conference-name">${conf.name}</span>
+                    <span class="conference-name">${displayConferenceName(conf.name)}</span>
                     <span class="conference-count">${conf.count.toLocaleString()}</span>
                 </label>
             `).join('');
@@ -1140,12 +1131,11 @@
                                     : escapeHtml(paper.title)
                                 }
                             </h2>
-                            <span class="paper-score">Score: ${paper.score}</span>
                         </div>
                         <div class="paper-meta">
                             <span class="paper-authors">${renderAuthors(paper.authors_data)}</span>
                             <div class="paper-badges">
-                                <span class="badge badge-conference">${paper.conference}</span>
+                                <span class="badge badge-conference">${displayConferenceName(paper.conference)}</span>
                                 <span class="badge badge-year">${paper.year}</span>
                             </div>
                         </div>
@@ -1202,6 +1192,14 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+        
+        // Rename conferences for display
+        function displayConferenceName(name) {
+            const renames = {
+                'NIPS': 'NeurIPS',
+            };
+            return renames[name] || name;
         }
     </script>
 </body>

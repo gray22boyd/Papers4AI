@@ -2,23 +2,22 @@
 Paper Search Engine - Flask REST API
 ====================================
 Backend API for searching academic papers.
-
-Endpoints:
-    POST /api/search     - Search papers
-    GET  /api/stats      - Get database statistics
-    GET  /api/conferences - Get list of conferences
-    GET  /api/paper/<id> - Get single paper details
+Serves both API and frontend in production.
 """
 
-from flask import Flask, request, jsonify
+import os
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 
-from config import HOST, PORT, DEBUG, DEFAULT_LIMIT, MAX_LIMIT
+from config import DEFAULT_LIMIT, MAX_LIMIT, BASE_DIR
 from search_engine import search_engine
 
 # Initialize Flask app
-app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend integration
+app = Flask(__name__, static_folder='../frontend', static_url_path='')
+CORS(app)
+
+# Get port from environment (Railway sets this)
+PORT = int(os.environ.get("PORT", 5000))
 
 
 @app.before_request
@@ -28,21 +27,16 @@ def ensure_data_loaded():
         search_engine.load_data()
 
 
+# Serve frontend
+@app.route("/")
+def serve_frontend():
+    """Serve the frontend HTML."""
+    return send_from_directory(app.static_folder, 'index.html')
+
+
 @app.route("/api/search", methods=["POST"])
 def search():
-    """
-    Search papers by query.
-
-    Request body:
-    {
-        "query": "transformer attention",
-        "conferences": ["CVPR", "ICLR"],  // optional
-        "year_min": 2020,                  // optional
-        "year_max": 2024,                  // optional
-        "limit": 20,                       // optional, default 20
-        "offset": 0                        // optional, for pagination
-    }
-    """
+    """Search papers by query with Boolean operators."""
     try:
         data = request.get_json() or {}
 
@@ -53,7 +47,6 @@ def search():
         limit = min(int(data.get("limit", DEFAULT_LIMIT)), MAX_LIMIT)
         offset = max(int(data.get("offset", 0)), 0)
 
-        # Validate conferences list
         if conferences and not isinstance(conferences, list):
             conferences = [conferences]
 
@@ -103,31 +96,12 @@ def health():
     })
 
 
-@app.route("/", methods=["GET"])
-def index():
-    """Root endpoint with API info."""
-    return jsonify({
-        "name": "Paper Search Engine API",
-        "version": "1.0.0",
-        "endpoints": {
-            "POST /api/search": "Search papers by query",
-            "GET /api/stats": "Get database statistics",
-            "GET /api/conferences": "List all conferences",
-            "GET /api/paper/<id>": "Get paper details",
-            "GET /api/health": "Health check",
-        }
-    })
-
-
 if __name__ == "__main__":
     print("\n" + "=" * 50)
     print("Paper Search Engine API")
     print("=" * 50)
-    print(f"Starting server at http://{HOST}:{PORT}")
+    print(f"Starting server on port {PORT}")
     print("Press Ctrl+C to stop\n")
 
-    # Pre-load data
     search_engine.load_data()
-
-    # Run the server
-    app.run(host=HOST, port=PORT, debug=DEBUG)
+    app.run(host="0.0.0.0", port=PORT, debug=False)

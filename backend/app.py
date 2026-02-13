@@ -8,6 +8,9 @@ Serves both API and frontend in production.
 import os
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+from flask_compress import Compress
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from config import DEFAULT_LIMIT, MAX_LIMIT, BASE_DIR
 from search_engine import search_engine
@@ -15,6 +18,17 @@ from search_engine import search_engine
 # Initialize Flask app
 app = Flask(__name__, static_folder='../frontend', static_url_path='')
 CORS(app)
+
+# Enable gzip compression
+Compress(app)
+
+# Rate limiting (prevent abuse)
+limiter = Limiter(
+    key_func=get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://",
+)
 
 # Get port from environment (Railway sets this)
 PORT = int(os.environ.get("PORT", 5000))
@@ -35,6 +49,7 @@ def serve_frontend():
 
 
 @app.route("/api/search", methods=["POST"])
+@limiter.limit("100 per minute")  # Allow 100 searches per minute per IP
 def search():
     """Search papers by query with Boolean operators."""
     try:

@@ -244,6 +244,26 @@
             border-color: var(--accent);
         }
 
+        .author-input {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            font-size: 0.9rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+
+        .author-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .author-input::placeholder {
+            color: var(--text-muted);
+        }
+
         .year-separator {
             color: var(--text-muted);
         }
@@ -746,6 +766,163 @@
                 flex-direction: column;
             }
         }
+
+        /* Suggest Link Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 450px;
+            transform: translateY(20px);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .modal-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .modal-btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .modal-btn-secondary:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        .modal-btn-primary {
+            background: var(--accent);
+            border: none;
+            color: white;
+        }
+
+        .modal-btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .modal-btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .modal-success {
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .modal-success-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Add Link Button in Popover */
+        .suggest-link-btn {
+            width: 100%;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            background: transparent;
+            border: 1px dashed var(--border);
+            border-radius: 6px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .suggest-link-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
     </style>
 </head>
 <body>
@@ -787,6 +964,11 @@
 
     <main>
         <aside class="filters-sidebar">
+            <div class="filter-section">
+                <h3 class="filter-title">Search by Author</h3>
+                <input type="text" id="author-filter" class="author-input" placeholder="e.g. Yann LeCun">
+            </div>
+
             <div class="filter-section">
                 <h3 class="filter-title">Year Range</h3>
                 <div class="year-range">
@@ -850,6 +1032,47 @@
         </section>
     </main>
 
+    <!-- Suggest Link Modal -->
+    <div class="modal-overlay" id="suggest-modal">
+        <div class="modal">
+            <div id="suggest-form-view">
+                <h2 class="modal-title">Suggest a Link</h2>
+                <p class="modal-subtitle">Help us improve our database by adding missing author links.</p>
+                <form class="modal-form" id="suggest-form">
+                    <div class="form-group">
+                        <label for="suggest-author">Author Name</label>
+                        <input type="text" id="suggest-author" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="suggest-type">Link Type</label>
+                        <select id="suggest-type">
+                            <option value="">Select type...</option>
+                            <option value="homepage">🏠 Homepage</option>
+                            <option value="google_scholar">🎓 Google Scholar</option>
+                            <option value="dblp">📚 DBLP</option>
+                            <option value="linkedin">💼 LinkedIn</option>
+                            <option value="orcid">🆔 ORCID</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="suggest-url">URL</label>
+                        <input type="url" id="suggest-url" placeholder="https://...">
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="modal-btn modal-btn-primary" id="suggest-submit">Submit</button>
+                    </div>
+                </form>
+            </div>
+            <div id="suggest-success-view" class="modal-success" style="display: none;">
+                <div class="modal-success-icon">✅</div>
+                <h2 class="modal-title">Thank You!</h2>
+                <p class="modal-subtitle">Your suggestion has been submitted for review.</p>
+                <button class="modal-btn modal-btn-primary" onclick="closeModal()" style="margin-top: 1rem;">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Configuration
         const API_BASE = '';  // Empty = same origin (works for both local and production)
@@ -866,6 +1089,7 @@
         const searchBtn = document.getElementById('search-btn');
         const yearMinInput = document.getElementById('year-min');
         const yearMaxInput = document.getElementById('year-max');
+        const authorFilterInput = document.getElementById('author-filter');
         const conferenceList = document.getElementById('conference-list');
         const clearFiltersBtn = document.getElementById('clear-filters');
         const resultsSection = document.getElementById('results-section');
@@ -877,6 +1101,10 @@
         const resultsList = document.getElementById('results-list');
         const resultsCount = document.getElementById('results-count');
         const pagination = document.getElementById('pagination');
+        const suggestModal = document.getElementById('suggest-modal');
+        const suggestForm = document.getElementById('suggest-form');
+        const suggestFormView = document.getElementById('suggest-form-view');
+        const suggestSuccessView = document.getElementById('suggest-success-view');
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -895,6 +1123,27 @@
             // Year inputs trigger search on change
             yearMinInput.addEventListener('change', () => search());
             yearMaxInput.addEventListener('change', () => search());
+            
+            // Author filter - search on Enter or after typing stops
+            let authorTimeout;
+            authorFilterInput.addEventListener('input', () => {
+                clearTimeout(authorTimeout);
+                authorTimeout = setTimeout(() => search(), 500);
+            });
+            authorFilterInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    clearTimeout(authorTimeout);
+                    search();
+                }
+            });
+            
+            // Suggest link form submission
+            suggestForm.addEventListener('submit', handleSuggestSubmit);
+            
+            // Close modal on overlay click
+            suggestModal.addEventListener('click', (e) => {
+                if (e.target === suggestModal) closeModal();
+            });
         }
 
         async function loadStats() {
@@ -945,6 +1194,7 @@
         function clearFilters() {
             yearMinInput.value = '';
             yearMaxInput.value = '';
+            authorFilterInput.value = '';
             selectedConferences.clear();
             conferenceList.querySelectorAll('.conference-checkbox').forEach(cb => cb.checked = false);
             
@@ -959,7 +1209,8 @@
 
         async function search(offset = 0) {
             const query = searchInput.value.trim();
-            const hasFilters = selectedConferences.size > 0 || yearMinInput.value || yearMaxInput.value;
+            const authorFilter = authorFilterInput.value.trim();
+            const hasFilters = selectedConferences.size > 0 || yearMinInput.value || yearMaxInput.value || authorFilter;
             
             // Need either a query or filters
             if (!query && !hasFilters) return;
@@ -986,6 +1237,9 @@
                 }
                 if (yearMaxInput.value) {
                     body.year_max = parseInt(yearMaxInput.value);
+                }
+                if (authorFilter) {
+                    body.author = authorFilter;
                 }
 
                 const response = await fetch(`${API_BASE}/api/search`, {
@@ -1030,10 +1284,6 @@
 
         function renderAuthorWithLinks(author, index) {
             const hasLinks = author.homepage || author.google_scholar || author.dblp || author.linkedin || author.orcid;
-            
-            if (!hasLinks) {
-                return `<span class="author-name">${escapeHtml(author.name)}</span>`;
-            }
 
             let linksHtml = '';
             
@@ -1052,6 +1302,9 @@
             if (author.orcid) {
                 linksHtml += `<a href="${escapeHtml(author.orcid)}" target="_blank" rel="noopener" class="popover-link orcid">ORCID</a>`;
             }
+            
+            // Always show "Suggest Link" button to add missing links
+            const suggestBtn = `<button type="button" class="suggest-link-btn" onclick="openSuggestModal(event, '${escapeHtml(author.name).replace(/'/g, "\\'")}')">+ Add missing link</button>`;
 
             return `
                 <span class="author-name has-links" onclick="toggleAuthorPopover(event, this)">
@@ -1059,7 +1312,8 @@
                     <div class="author-popover">
                         <div class="popover-name">${escapeHtml(author.name)}</div>
                         ${author.affiliation ? `<div class="popover-affiliation">${escapeHtml(author.affiliation)}</div>` : ''}
-                        <div class="popover-links">${linksHtml}</div>
+                        ${linksHtml ? `<div class="popover-links">${linksHtml}</div>` : '<div class="popover-links" style="color: var(--text-muted); font-size: 0.8rem;">No links available</div>'}
+                        ${suggestBtn}
                     </div>
                 </span>
             `;
@@ -1200,6 +1454,75 @@
                 'NIPS': 'NeurIPS',
             };
             return renames[name] || name;
+        }
+        
+        // Modal functions
+        function openSuggestModal(event, authorName) {
+            event.stopPropagation();
+            
+            // Close any open popovers
+            document.querySelectorAll('.author-popover.active').forEach(p => p.classList.remove('active'));
+            
+            // Reset form
+            suggestFormView.style.display = 'block';
+            suggestSuccessView.style.display = 'none';
+            document.getElementById('suggest-author').value = authorName;
+            document.getElementById('suggest-type').value = '';
+            document.getElementById('suggest-url').value = '';
+            
+            // Show modal
+            suggestModal.classList.add('active');
+        }
+        
+        function closeModal() {
+            suggestModal.classList.remove('active');
+        }
+        
+        async function handleSuggestSubmit(e) {
+            e.preventDefault();
+            
+            const authorName = document.getElementById('suggest-author').value;
+            const linkType = document.getElementById('suggest-type').value;
+            const linkUrl = document.getElementById('suggest-url').value;
+            
+            if (!linkType || !linkUrl) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            const submitBtn = document.getElementById('suggest-submit');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/suggest-link`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        author_name: authorName,
+                        link_type: linkType,
+                        link_url: linkUrl
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit';
+                    return;
+                }
+                
+                // Show success view
+                suggestFormView.style.display = 'none';
+                suggestSuccessView.style.display = 'block';
+                
+            } catch (error) {
+                alert('Failed to submit suggestion. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit';
+            }
         }
     </script>
 </body>

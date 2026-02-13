@@ -235,6 +235,7 @@ class PaperSearchEngine:
         conferences: Optional[list] = None,
         year_min: Optional[int] = None,
         year_max: Optional[int] = None,
+        author: Optional[str] = None,
         limit: int = 20,
         offset: int = 0,
     ) -> dict:
@@ -246,13 +247,14 @@ class PaperSearchEngine:
             - AND: world AND models (implicit between words)
             - OR: video OR image
             - NOT: transformer NOT vision
-            - Empty query with filters: browse by conference/year
+            - Empty query with filters: browse by conference/year/author
 
         Args:
             query: Search query with optional Boolean operators (can be empty if filters set)
             conferences: List of conference names to filter by
             year_min: Minimum year filter
             year_max: Maximum year filter
+            author: Author name to filter by (partial match)
             limit: Maximum results to return
             offset: Offset for pagination
 
@@ -260,7 +262,8 @@ class PaperSearchEngine:
             Dict with results, total count, and query info
         """
         query = query.strip() if query else ""
-        has_filters = conferences or year_min or year_max
+        author_filter = author.strip().lower() if author else None
+        has_filters = conferences or year_min or year_max or author_filter
         
         # Parse Boolean query (if any)
         bq = BooleanQuery.parse(query) if query else None
@@ -289,6 +292,12 @@ class PaperSearchEngine:
                 continue
             if year_max and paper_year > year_max:
                 continue
+            
+            # Apply author filter
+            if author_filter:
+                paper_authors = (paper.get("authors") or "").lower()
+                if author_filter not in paper_authors:
+                    continue
 
             # If we have a query, check Boolean match
             if bq and bq.has_terms():

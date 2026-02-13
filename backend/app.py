@@ -6,14 +6,19 @@ Serves both API and frontend in production.
 """
 
 import os
+import json
+from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_compress import Compress
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
-from config import DEFAULT_LIMIT, MAX_LIMIT, BASE_DIR
+from config import DEFAULT_LIMIT, MAX_LIMIT, BASE_DIR, DATA_DIR
 from search_engine import search_engine
+
+# File to store link suggestions
+SUGGESTIONS_FILE = DATA_DIR / "link_suggestions.json"
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='../frontend', static_url_path='')
@@ -59,6 +64,7 @@ def search():
         conferences = data.get("conferences")
         year_min = data.get("year_min")
         year_max = data.get("year_max")
+        author = data.get("author", "").strip()
         limit = min(int(data.get("limit", DEFAULT_LIMIT)), MAX_LIMIT)
         offset = max(int(data.get("offset", 0)), 0)
 
@@ -70,6 +76,7 @@ def search():
             conferences=conferences,
             year_min=year_min,
             year_max=year_max,
+            author=author if author else None,
             limit=limit,
             offset=offset,
         )
@@ -109,6 +116,65 @@ def health():
         "loaded": search_engine._loaded,
         "papers": len(search_engine.papers) if search_engine._loaded else 0,
     })
+
+
+@app.route("/api/suggest-link", methods=["POST"])
+@limiter.limit("10 per minute")  # Limit suggestions to prevent spam
+def suggest_link():
+    """
+    Submit a suggested link for an author.
+    
+    Users can suggest profile links (homepage, scholar, etc.) for authors
+    who don't have them in the database. These are stored for review.
+    """
+    try:
+        data = request.get_json() or {}
+        
+        author_name = data.get("author_name", "").strip()
+        link_type = data.get("link_type", "").strip()  # homepage, google_scholar, linkedin, etc.
+        link_url = data.get("link_url", "").strip()
+        
+        # Validate input
+        if not author_name:
+            return jsonify({"error": "Author name is required"}), 400
+        if not link_type:
+            return jsonify({"error": "Link type is required"}), 400
+        if not link_url:
+            return jsonify({"error": "Link URL is required"}), 400
+        
+        valid_types = ["homepage", "google_scholar", "dblp", "linkedin", "orcid"]
+        if link_type not in valid_types:
+            return jsonify({"error": f"Link type must be one of: {', '.join(valid_types)}"}), 400
+        
+        # Basic URL validation
+        if not link_url.startswith(("http://", "https://")):
+            return jsonify({"error": "URL must start with http:// or https://"}), 400
+        
+        # Load existing suggestions
+        suggestions = []
+        if SUGGESTIONS_FILE.exists():
+            with open(SUGGESTIONS_FILE, "r", encoding="utf-8") as f:
+                suggestions = json.load(f)
+        
+        # Add new suggestion
+        suggestion = {
+            "author_name": author_name,
+            "link_type": link_type,
+            "link_url": link_url,
+            "submitted_at": datetime.utcnow().isoformat(),
+            "ip": get_remote_address(),
+            "status": "pending"
+        }
+        suggestions.append(suggestion)
+        
+        # Save suggestions
+        with open(SUGGESTIONS_FILE, "w", encoding="utf-8") as f:
+            json.dump(suggestions, f, indent=2)
+        
+        return jsonify({"success": True, "message": "Thank you! Your suggestion has been submitted for review."})
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 
 if __name__ == "__main__":

@@ -27,6 +27,140 @@ OUTPUT_DIR = Path(__file__).parent.parent / "data"
 SKIP_FOLDERS = {"tools", ".git", "__pycache__"}
 SKIP_FILES = {"croissant.json", "README.md"}
 
+# Country name normalization and patterns
+COUNTRY_ALIASES = {
+    "usa": "USA", "u.s.a.": "USA", "united states": "USA", "u.s.": "USA", "us": "USA",
+    "uk": "UK", "united kingdom": "UK", "england": "UK", "britain": "UK", "great britain": "UK",
+    "china": "China", "p.r. china": "China", "prc": "China", "people's republic of china": "China",
+    "korea": "South Korea", "south korea": "South Korea", "republic of korea": "South Korea",
+    "germany": "Germany", "deutschland": "Germany",
+    "france": "France", "japan": "Japan", "canada": "Canada", "australia": "Australia",
+    "switzerland": "Switzerland", "israel": "Israel", "singapore": "Singapore",
+    "netherlands": "Netherlands", "the netherlands": "Netherlands", "holland": "Netherlands",
+    "italy": "Italy", "spain": "Spain", "sweden": "Sweden", "austria": "Austria",
+    "belgium": "Belgium", "denmark": "Denmark", "finland": "Finland", "norway": "Norway",
+    "ireland": "Ireland", "portugal": "Portugal", "poland": "Poland", "russia": "Russia",
+    "india": "India", "brazil": "Brazil", "mexico": "Mexico", "argentina": "Argentina",
+    "taiwan": "Taiwan", "hong kong": "Hong Kong", "hk": "Hong Kong",
+    "saudi arabia": "Saudi Arabia", "uae": "UAE", "united arab emirates": "UAE",
+    "czech republic": "Czech Republic", "greece": "Greece", "turkey": "Turkey",
+    "new zealand": "New Zealand", "south africa": "South Africa", "egypt": "Egypt",
+    "iran": "Iran", "pakistan": "Pakistan", "vietnam": "Vietnam", "thailand": "Thailand",
+    "malaysia": "Malaysia", "indonesia": "Indonesia", "philippines": "Philippines",
+}
+
+# Well-known institutions mapped to countries
+INSTITUTION_COUNTRY_MAP = {
+    # USA - Universities
+    "mit": "USA", "massachusetts institute of technology": "USA",
+    "stanford": "USA", "stanford university": "USA",
+    "berkeley": "USA", "uc berkeley": "USA", "university of california": "USA",
+    "cmu": "USA", "carnegie mellon": "USA",
+    "harvard": "USA", "harvard university": "USA",
+    "princeton": "USA", "princeton university": "USA",
+    "caltech": "USA", "yale": "USA", "columbia": "USA", "cornell": "USA",
+    "ucla": "USA", "usc": "USA", "nyu": "USA", "georgia tech": "USA",
+    "university of washington": "USA", "university of michigan": "USA",
+    "university of illinois": "USA", "uiuc": "USA",
+    "university of texas": "USA", "ut austin": "USA",
+    "johns hopkins": "USA", "duke": "USA", "northwestern": "USA",
+    # USA - Companies
+    "google": "USA", "meta": "USA", "facebook": "USA", "microsoft": "USA",
+    "amazon": "USA", "apple": "USA", "nvidia": "USA", "intel": "USA",
+    "ibm": "USA", "openai": "USA", "anthropic": "USA", "salesforce": "USA",
+    "adobe": "USA", "oracle": "USA", "uber": "USA", "tesla": "USA",
+    "allen institute": "USA", "allen ai": "USA",
+    # China
+    "tsinghua": "China", "tsinghua university": "China",
+    "peking university": "China", "pku": "China", "beida": "China",
+    "zhejiang university": "China", "fudan": "China", "sjtu": "China",
+    "shanghai jiao tong": "China", "ustc": "China",
+    "university of science and technology of china": "China",
+    "chinese academy of sciences": "China", "cas": "China",
+    "nanjing university": "China", "wuhan university": "China",
+    "harbin institute of technology": "China", "hit": "China",
+    "beihang": "China", "buaa": "China", "renmin": "China",
+    "baidu": "China", "alibaba": "China", "tencent": "China", "bytedance": "China",
+    "huawei": "China", "didi": "China", "sensetime": "China", "megvii": "China",
+    "jd.com": "China", "xiaomi": "China", "ant group": "China",
+    # UK
+    "oxford": "UK", "university of oxford": "UK",
+    "cambridge": "UK", "university of cambridge": "UK",
+    "imperial college": "UK", "imperial": "UK", "ucl": "UK",
+    "university college london": "UK", "edinburgh": "UK",
+    "deepmind": "UK", "google deepmind": "UK",
+    # Canada
+    "university of toronto": "Canada", "uoft": "Canada",
+    "mcgill": "Canada", "university of montreal": "Canada", "mila": "Canada",
+    "university of waterloo": "Canada", "university of alberta": "Canada",
+    # Germany
+    "max planck": "Germany", "mpi": "Germany",
+    "tu munich": "Germany", "tum": "Germany", "rwth aachen": "Germany",
+    "eth": "Switzerland", "eth zurich": "Switzerland", "epfl": "Switzerland",
+    # France
+    "inria": "France", "cnrs": "France", "ecole polytechnique": "France",
+    "ens": "France", "ecole normale superieure": "France",
+    # Japan
+    "university of tokyo": "Japan", "tokyo university": "Japan",
+    "kyoto university": "Japan", "osaka university": "Japan",
+    "sony": "Japan", "ntt": "Japan", "riken": "Japan",
+    # Others
+    "kaist": "South Korea", "seoul national": "South Korea", "samsung": "South Korea",
+    "ntu": "Singapore", "nanyang technological": "Singapore", "nus": "Singapore",
+    "national university of singapore": "Singapore",
+    "tel aviv": "Israel", "technion": "Israel", "hebrew university": "Israel",
+    "anu": "Australia", "australian national university": "Australia",
+    "melbourne": "Australia", "university of melbourne": "Australia",
+    "sydney": "Australia", "university of sydney": "Australia",
+    "delft": "Netherlands", "tu delft": "Netherlands", "amsterdam": "Netherlands",
+    "kth": "Sweden", "aalto": "Finland",
+    "iit": "India", "indian institute of technology": "India", "iisc": "India",
+}
+
+
+def extract_country(affiliation: str) -> str:
+    """
+    Extract country from affiliation string.
+    
+    Strategies:
+    1. Look for country names at the end of the string (most common pattern)
+    2. Look for US state abbreviations (CA, NY, MA, etc.)
+    3. Match against known institution names
+    """
+    if not affiliation:
+        return ""
+    
+    aff_lower = affiliation.lower().strip()
+    
+    # Strategy 1: Check if affiliation ends with a country name
+    # Common patterns: "University Name, Country" or "University Name, City, Country"
+    parts = [p.strip() for p in affiliation.split(",")]
+    if parts:
+        last_part = parts[-1].lower().strip()
+        # Remove common suffixes
+        last_part = last_part.rstrip(".")
+        
+        if last_part in COUNTRY_ALIASES:
+            return COUNTRY_ALIASES[last_part]
+    
+    # Strategy 2: Check for US state abbreviations (common pattern: "University, City, CA, USA" or just "City, CA")
+    US_STATES = {"al", "ak", "az", "ar", "ca", "co", "ct", "de", "fl", "ga", "hi", "id", "il", "in", "ia",
+                 "ks", "ky", "la", "me", "md", "ma", "mi", "mn", "ms", "mo", "mt", "ne", "nv", "nh", "nj",
+                 "nm", "ny", "nc", "nd", "oh", "ok", "or", "pa", "ri", "sc", "sd", "tn", "tx", "ut", "vt",
+                 "va", "wa", "wv", "wi", "wy", "dc"}
+    
+    for part in parts:
+        part_clean = part.lower().strip().rstrip(".")
+        if part_clean in US_STATES:
+            return "USA"
+    
+    # Strategy 3: Match against known institutions
+    for institution, country in INSTITUTION_COUNTRY_MAP.items():
+        if institution in aff_lower:
+            return country
+    
+    return ""
+
 
 def extract_year_from_filename(filename: str) -> int:
     """Extract year from filename like 'cvpr2024.json' -> 2024"""
@@ -123,9 +257,13 @@ def parse_authors_with_metadata(paper: dict) -> list:
             if li_id:
                 author["linkedin"] = f"https://www.linkedin.com/in/{li_id}"
         
-        # Affiliation
+        # Affiliation and Country
         if i < len(affiliations) and affiliations[i]:
             author["affiliation"] = affiliations[i]
+            # Extract country from affiliation
+            country = extract_country(affiliations[i])
+            if country:
+                author["country"] = country
         
         authors.append(author)
     
@@ -151,6 +289,15 @@ def process_paper(paper: dict, conference: str, year: int, global_id: int) -> di
     # Create simple author string for display/search
     authors_str = ", ".join(a["name"] for a in authors_data) if authors_data else ""
     
+    # Aggregate countries from all authors (unique, ordered by first occurrence)
+    countries = []
+    seen_countries = set()
+    for author in authors_data:
+        country = author.get("country", "")
+        if country and country not in seen_countries:
+            countries.append(country)
+            seen_countries.add(country)
+    
     return {
         "id": global_id,
         "paper_id": str(paper.get("id", "")),
@@ -166,6 +313,7 @@ def process_paper(paper: dict, conference: str, year: int, global_id: int) -> di
         "keywords": paper.get("keywords", ""),
         "github": paper.get("github", ""),
         "project": paper.get("project", ""),
+        "countries": countries,  # List of countries from all authors
     }
 
 
@@ -251,7 +399,7 @@ def save_csv(papers: list, output_path: Path):
     if not papers:
         return
 
-    fieldnames = ["id", "paper_id", "title", "abstract", "authors", "year", "conference", "url", "status", "track", "keywords", "github", "project"]
+    fieldnames = ["id", "paper_id", "title", "abstract", "authors", "year", "conference", "url", "status", "track", "keywords", "github", "project", "countries"]
 
     with open(output_path, "w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
@@ -274,20 +422,33 @@ def print_summary(papers: list, stats: dict, errors: list):
     years = [p["year"] for p in papers if p["year"] > 0]
     conferences = set(p["conference"] for p in papers)
     
-    # Count authors with links
+    # Count authors with links and countries
     authors_with_links = 0
+    authors_with_country = 0
     total_authors = 0
+    papers_with_country = 0
+    country_counts = defaultdict(int)
+    
     for p in papers:
+        if p.get("countries"):
+            papers_with_country += 1
+            for country in p["countries"]:
+                country_counts[country] += 1
+        
         for author in p.get("authors_data", []):
             total_authors += 1
             if any(k in author for k in ["homepage", "google_scholar", "dblp", "linkedin", "orcid"]):
                 authors_with_links += 1
+            if author.get("country"):
+                authors_with_country += 1
 
     print(f"\n  Total Papers:     {len(papers):,}")
     print(f"  Conferences:      {len(conferences)}")
     print(f"  Year Range:       {min(years)} - {max(years)}")
     print(f"  Total Authors:    {total_authors:,}")
     print(f"  Authors w/ Links: {authors_with_links:,} ({100*authors_with_links/total_authors:.1f}%)" if total_authors > 0 else "")
+    print(f"  Authors w/ Country: {authors_with_country:,} ({100*authors_with_country/total_authors:.1f}%)" if total_authors > 0 else "")
+    print(f"  Papers w/ Country: {papers_with_country:,} ({100*papers_with_country/len(papers):.1f}%)")
 
     # Papers by year
     print(f"\n  Papers by Year (recent):")
@@ -305,6 +466,13 @@ def print_summary(papers: list, stats: dict, errors: list):
     conf_counts.sort(key=lambda x: x[1], reverse=True)
     for conf, count in conf_counts[:10]:
         print(f"      {conf.upper():12}: {count:,}")
+
+    # Top countries
+    if country_counts:
+        print(f"\n  Top Countries:")
+        sorted_countries = sorted(country_counts.items(), key=lambda x: x[1], reverse=True)
+        for country, count in sorted_countries[:10]:
+            print(f"      {country:15}: {count:,}")
 
     if errors:
         print(f"\n  Errors: {len(errors)}")

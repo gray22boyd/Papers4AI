@@ -146,6 +146,8 @@ class PaperSearchEngine:
         self.papers_by_id = {}
         self.conferences = set()
         self.years = set()
+        self.countries = set()  # All unique countries
+        self.country_counts = defaultdict(int)  # Country -> paper count
         self.authors_index = {}  # Normalized name -> author data
         self._loaded = False
 
@@ -232,6 +234,10 @@ class PaperSearchEngine:
                 self.conferences.add(paper["conference"])
             if paper.get("year"):
                 self.years.add(paper["year"])
+            # Build country index
+            for country in paper.get("countries", []):
+                self.countries.add(country)
+                self.country_counts[country] += 1
 
         # Build author index
         self._build_author_index()
@@ -258,6 +264,13 @@ class PaperSearchEngine:
         return [
             {"name": conf, "count": count}
             for conf, count in sorted(counts.items(), key=lambda x: -x[1])
+        ]
+
+    def get_countries(self) -> list:
+        """Get list of all countries with paper counts."""
+        return [
+            {"name": country, "count": count}
+            for country, count in sorted(self.country_counts.items(), key=lambda x: -x[1])
         ]
 
     def get_paper(self, paper_id: int) -> Optional[dict]:
@@ -424,6 +437,7 @@ class PaperSearchEngine:
         year_min: Optional[int] = None,
         year_max: Optional[int] = None,
         author: Optional[str] = None,
+        countries: Optional[list] = None,
         limit: int = 20,
         offset: int = 0,
     ) -> dict:
@@ -435,7 +449,7 @@ class PaperSearchEngine:
             - AND: world AND models (implicit between words)
             - OR: video OR image
             - NOT: transformer NOT vision
-            - Empty query with filters: browse by conference/year/author
+            - Empty query with filters: browse by conference/year/author/country
 
         Args:
             query: Search query with optional Boolean operators (can be empty if filters set)
@@ -443,6 +457,7 @@ class PaperSearchEngine:
             year_min: Minimum year filter
             year_max: Maximum year filter
             author: Author name to filter by (partial match)
+            countries: List of country names to filter by
             limit: Maximum results to return
             offset: Offset for pagination
 
@@ -451,7 +466,8 @@ class PaperSearchEngine:
         """
         query = query.strip() if query else ""
         author_filter = author.strip().lower() if author else None
-        has_filters = conferences or year_min or year_max or author_filter
+        countries_set = set(countries) if countries else None
+        has_filters = conferences or year_min or year_max or author_filter or countries_set
         
         # Parse Boolean query (if any)
         bq = BooleanQuery.parse(query) if query else None
@@ -485,6 +501,12 @@ class PaperSearchEngine:
             if author_filter:
                 paper_authors = (paper.get("authors") or "").lower()
                 if author_filter not in paper_authors:
+                    continue
+            
+            # Apply country filter
+            if countries_set:
+                paper_countries = set(paper.get("countries", []))
+                if not paper_countries.intersection(countries_set):
                     continue
 
             # If we have a query, check Boolean match

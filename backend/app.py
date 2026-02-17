@@ -65,11 +65,15 @@ def search():
         year_min = data.get("year_min")
         year_max = data.get("year_max")
         author = data.get("author", "").strip()
+        countries_param = data.get("countries")
         limit = min(int(data.get("limit", DEFAULT_LIMIT)), MAX_LIMIT)
         offset = max(int(data.get("offset", 0)), 0)
 
         if conferences and not isinstance(conferences, list):
             conferences = [conferences]
+        
+        if countries_param and not isinstance(countries_param, list):
+            countries_param = [countries_param]
 
         results = search_engine.search(
             query=query,
@@ -77,6 +81,7 @@ def search():
             year_min=year_min,
             year_max=year_max,
             author=author if author else None,
+            countries=countries_param,
             limit=limit,
             offset=offset,
         )
@@ -97,6 +102,12 @@ def stats():
 def conferences():
     """Get list of all conferences with paper counts."""
     return jsonify(search_engine.get_conferences())
+
+
+@app.route("/api/countries", methods=["GET"])
+def countries():
+    """Get list of all countries with paper counts."""
+    return jsonify(search_engine.get_countries())
 
 
 @app.route("/api/paper/<int:paper_id>", methods=["GET"])

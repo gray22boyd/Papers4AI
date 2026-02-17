@@ -125,16 +125,19 @@ def extract_country(affiliation: str) -> str:
     Strategies:
     1. Look for country names at the end of the string (most common pattern)
     2. Look for US state abbreviations (CA, NY, MA, etc.)
-    3. Match against known institution names
+    3. Match against known institution names (PRIMARY affiliation only)
     """
     if not affiliation:
         return ""
     
-    aff_lower = affiliation.lower().strip()
+    # Handle compound affiliations (e.g., "University of Oxford+Google")
+    # Take the PRIMARY (first) affiliation for institution matching
+    primary_aff = affiliation.split("+")[0].strip()
+    aff_lower = primary_aff.lower().strip()
     
     # Strategy 1: Check if affiliation ends with a country name
     # Common patterns: "University Name, Country" or "University Name, City, Country"
-    parts = [p.strip() for p in affiliation.split(",")]
+    parts = [p.strip() for p in primary_aff.split(",")]
     if parts:
         last_part = parts[-1].lower().strip()
         # Remove common suffixes
@@ -154,9 +157,12 @@ def extract_country(affiliation: str) -> str:
         if part_clean in US_STATES:
             return "USA"
     
-    # Strategy 3: Match against known institutions
+    # Strategy 3: Match against known institutions (PRIMARY affiliation only)
+    # Use word boundary matching to avoid false positives
     for institution, country in INSTITUTION_COUNTRY_MAP.items():
-        if institution in aff_lower:
+        # Check if institution appears as a word/phrase (not just substring)
+        # e.g., "stanford" should match "Stanford University" but not "Stanfordshire"
+        if re.search(r'\b' + re.escape(institution) + r'\b', aff_lower):
             return country
     
     return ""

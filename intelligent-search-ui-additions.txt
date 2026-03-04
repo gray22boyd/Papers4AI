@@ -1,0 +1,217 @@
+===========================================
+INTELLIGENT SEARCH - FRONTEND ADDITIONS
+===========================================
+
+These additions should be integrated into frontend/index.html
+
+-------------------------------------------
+1. ADD TO AI CHAT HEADER (around line 3900)
+-------------------------------------------
+
+Replace:
+    <div class="ai-chat-header">
+        <div class="ai-chat-title">🔍 AI Search Assistant</div>
+        <div style="display: flex; gap: 0.25rem; align-items: center;">
+            <button class="ai-settings-gear" onclick="openAgentSettings()" title="AI Settings" id="ai-chat-gear" style="display: none;">⚙</button>
+            <button class="ai-chat-close" onclick="toggleAIChat()" title="Close">×</button>
+        </div>
+    </div>
+
+With:
+    <div class="ai-chat-header">
+        <div class="ai-chat-title">🔍 AI Search Assistant</div>
+        <div style="display: flex; gap: 0.25rem; align-items: center;">
+            <label style="font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem; color: var(--text-secondary);">
+                <input type="checkbox" id="intelligent-search-toggle" style="cursor: pointer;">
+                🧠 Intelligent
+            </label>
+            <button class="ai-settings-gear" onclick="openAgentSettings()" title="AI Settings" id="ai-chat-gear" style="display: none;">⚙</button>
+            <button class="ai-chat-close" onclick="toggleAIChat()" title="Close">×</button>
+        </div>
+    </div>
+
+-------------------------------------------
+2. ADD JAVASCRIPT FUNCTIONS (before </script>)
+-------------------------------------------
+
+// Intelligent Search Functions
+async function sendIntelligentSearch(query) {
+    const messagesContainer = document.getElementById('ai-chat-messages');
+
+    try {
+        const response = await fetch(`${API_BASE}/api/intelligent/search`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                query,
+                use_llm: true,
+                max_results: 10
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        // Show results
+        const resultsMsg = document.createElement('div');
+        resultsMsg.className = 'ai-message assistant';
+
+        let html = `<strong>🧠 Intelligent Analysis Results</strong><br>`;
+        html += `<em>Found ${data.total} highly relevant candidates</em><br><br>`;
+
+        data.candidates.slice(0, 10).forEach((candidate, i) => {
+            const score = candidate.final_score || candidate.intelligence_score || 0;
+            const llm = candidate.llm_evaluation || {};
+
+            html += `<div style="margin-bottom: 1rem; padding: 0.75rem; background: rgba(124, 92, 255, 0.1); border-radius: 8px; border-left: 3px solid ${getScoreColor(score)};">`;
+            html += `<div style="display: flex; justify-content: space-between; align-items: start;">`;
+            html += `<strong>${i + 1}. <a href="#" onclick="openAuthorProfile(event, '${candidate.name.replace(/'/g, "\\'")}'); return false;" style="color: var(--accent);">${candidate.name}</a></strong>`;
+            html += `<span style="font-size: 1.2rem; font-weight: bold; color: ${getScoreColor(score)};">${Math.round(score)}</span>`;
+            html += `</div>`;
+
+            // Expertise bars
+            if (candidate.required_topic_scores || candidate.expertise) {
+                const topics = candidate.required_topic_scores || candidate.expertise;
+                html += `<div style="margin-top: 0.5rem;">`;
+                Object.entries(topics).slice(0, 3).forEach(([topic, score]) => {
+                    const pct = Math.round(score * 100);
+                    html += `<div style="margin: 0.25rem 0;">`;
+                    html += `<small>${topic.replace(/_/g, ' ')}: </small>`;
+                    html += `<div style="display: inline-block; width: 100px; height: 8px; background: var(--bg-dark); border-radius: 4px; vertical-align: middle;">`;
+                    html += `<div style="width: ${pct}%; height: 100%; background: ${getScoreColor(score * 100)}; border-radius: 4px;"></div>`;
+                    html += `</div>`;
+                    html += ` <small>${pct}%</small>`;
+                    html += `</div>`;
+                });
+                html += `</div>`;
+            }
+
+            // LLM reasoning
+            if (llm.reasoning) {
+                html += `<div style="margin-top: 0.5rem; font-size: 0.85rem; font-style: italic; color: var(--text-secondary);">`;
+                html += `💭 ${llm.reasoning}`;
+                html += `</div>`;
+            }
+
+            // Strengths
+            if (llm.strengths && llm.strengths.length > 0) {
+                html += `<div style="margin-top: 0.5rem; font-size: 0.8rem;">`;
+                html += `<strong>✅ Strengths:</strong><br>`;
+                llm.strengths.forEach(s => {
+                    html += `• ${s}<br>`;
+                });
+                html += `</div>`;
+            }
+
+            // Red flags
+            if (llm.red_flags && llm.red_flags.length > 0) {
+                html += `<div style="margin-top: 0.5rem; font-size: 0.8rem; color: #fbbf24;">`;
+                html += `<strong>⚠️ Considerations:</strong><br>`;
+                llm.red_flags.forEach(f => {
+                    html += `• ${f}<br>`;
+                });
+                html += `</div>`;
+            }
+
+            html += `</div>`;
+        });
+
+        resultsMsg.innerHTML = html;
+        messagesContainer.appendChild(resultsMsg);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    } catch (error) {
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'ai-message error';
+        errorMsg.textContent = `Intelligent search error: ${error.message}`;
+        messagesContainer.appendChild(errorMsg);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+}
+
+function getScoreColor(score) {
+    if (score >= 80) return '#4ade80'; // green
+    if (score >= 60) return '#fbbf24'; // yellow
+    if (score >= 40) return '#fb923c'; // orange
+    return '#ef4444'; // red
+}
+
+-------------------------------------------
+3. MODIFY sendAIMessage() function
+-------------------------------------------
+
+In the sendAIMessage() function, add at the beginning (after const query = input.value.trim();):
+
+    // Check if intelligent search is enabled
+    const useIntelligent = document.getElementById('intelligent-search-toggle').checked;
+
+    if (useIntelligent) {
+        // Clear input
+        input.value = '';
+
+        // Show typing indicator
+        const typingMsg = document.createElement('div');
+        typingMsg.className = 'ai-typing';
+        typingMsg.textContent = '🧠 Analyzing with intelligent search...';
+        messagesContainer.appendChild(typingMsg);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        await sendIntelligentSearch(query);
+        typingMsg.remove();
+        return; // Exit early
+    }
+
+-------------------------------------------
+4. ADD CSS FOR INTELLIGENT RESULTS
+-------------------------------------------
+
+Add to the <style> section:
+
+.intelligent-result {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: rgba(124, 92, 255, 0.1);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent);
+}
+
+.score-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.score-high { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+.score-medium { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+.score-low { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+.expertise-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.25rem 0;
+    font-size: 0.85rem;
+}
+
+.expertise-bar-fill {
+    flex: 1;
+    height: 8px;
+    background: var(--bg-dark);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.expertise-bar-value {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s;
+}
+
+===========================================
+END OF ADDITIONS
+===========================================

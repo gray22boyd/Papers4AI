@@ -1,0 +1,15 @@
+# Additional requirements for intelligent search features
+# Install with: pip install -r requirements-intelligent.txt
+
+# Semantic search with embeddings
+sentence-transformers>=2.2.0
+torch>=2.0.0
+
+# LLM reasoning (optional but recommended)
+anthropic>=0.18.0
+
+# Progress bars for embedding generation
+tqdm>=4.65.0
+
+# Web search for candidate enrichment (SOTA approach - no scraping!)
+duckduckgo-search>=5.0.0

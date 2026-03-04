@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Papers4AI - Academic Paper Search Engine</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Search 236,000+ academic papers from top AI/ML conferences including CVPR, NeurIPS, ICLR, ICML, and more.">
+    <meta name="keywords" content="academic papers, research papers, AI, machine learning, deep learning, NeurIPS, CVPR, ICLR, ICML, paper search">
+
+    <!-- Google Fonts - Tesla-inspired typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================
+           TESLA-INSPIRED DESIGN SYSTEM
+           Deep Black | Crisp White | Tesla Red
+           ============================================ */
+
+        :root {
+            /* Tesla Color Palette */
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --bg-card: #111111;
+            --bg-card-hover: #1a1a1a;
+
+            --text-primary: #FFFFFF;
+            --text-secondary: #b3b3b3;
+            --text-muted: #666666;
+
+            --tesla-red: #CC0000;
+            --tesla-red-hover: #FF0000;
+            --tesla-red-glow: rgba(204, 0, 0, 0.5);
+            --tesla-red-glow-intense: rgba(204, 0, 0, 0.8);
+
+            --border-subtle: #1a1a1a;
+            --border-medium: #2a2a2a;
+            --border-red: #CC0000;
+
+            /* Shadows & Effects */
+            --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --shadow-intense: 0 8px 32px rgba(0, 0, 0, 0.6);
+            --glow-red: 0 0 20px var(--tesla-red-glow), 0 0 40px var(--tesla-red-glow);
+            --glow-red-intense: 0 0 20px var(--tesla-red-glow-intense), 0 0 40px var(--tesla-red-glow-intense), 0 0 60px var(--tesla-red-glow);
+        }
+
+        /* Light Mode Override */
+        [data-theme="light"] {
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F5F5F5;
+            --bg-card: #FAFAFA;
+            --bg-card-hover: #F0F0F0;
+
+            --text-primary: #000000;
+            --text-secondary: #4d4d4d;
+            --text-muted: #999999;
+
+            --border-subtle: #E0E0E0;
+            --border-medium: #CCCCCC;
+
+            --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --shadow-intense: 0 8px 32px rgba(0, 0, 0, 0.16);
+        }
+
+        /* ============================================
+           RESET & BASE STYLES
+           ============================================ */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ============================================
+           HEADER - Tesla-Style Navigation
+           ============================================ */
+
+        header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-red);
+            padding: 2rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 20px rgba(204, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 3rem;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo-section h1 {
+            font-family: 'Inter', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--tesla-red) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        /* Theme Toggle - Tesla Style */
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 2px solid var(--border-medium);
+            border-radius: 50px;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--tesla-red);
+            color: var(--text-primary);
+            box-shadow: var(--glow-red);
+            transform: translateY(-2px);
+        }
+
+        /* Auth Buttons - Tesla Red */
+        .auth-btn, .admin-btn {
+            padding: 0.75rem 2rem;
+            border: 2px solid var(--tesla-red);
+            background: transparent;
+            color: var(--tesla-red);
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+        }
+
+        .auth-btn:hover, .admin-btn:hover {
+            background: var(--tesla-red);
+            color: var(--text-primary);
+            box-shadow: var(--glow-red-intense);
+            transform: translateY(-3px);
+        }
+
+        .admin-btn {
+            background: var(--tesla-red);
+            color: var(--text-primary);
+        }
+
+        .admin-btn:hover {
+            background: var(--tesla-red-hover);
+            box-shadow: var(--glow-red-intense);
+        }
+
+        /* Subtitle & Stats */
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            letter-spacing: 0.01em;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 3rem;
+            font-size: 0.95rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-value {
+            color: var(--tesla-red);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        /* ============================================
+           SEARCH SECTION - Tesla Command Center Style
+           ============================================ */
+
+        .search-section {
+            max-width: 1400px;
+            margin: 3rem auto;
+            padding: 0 3rem;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1.5rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 500;
+            border: 2px solid var(--border-medium);
+            border-radius: 12px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--tesla-red);
+            box-shadow: var(--glow-red);
+            background: var(--bg-secondary);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Tesla-Style Search Button */
+        .search-btn {
+            padding: 1.5rem 3rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: var(--tesla-red);
+            color: var(--text-primary);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            box-shadow: var(--shadow-medium);
+        }
+
+        .search-btn:hover {
+            background: var(--tesla-red-hover);
+            box-shadow: var(--glow-red-intense);
+            transform: translateY(-3px);
+        }
+
+        .search-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ============================================
+           MAIN CONTENT LAYOUT
+           ============================================ */
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 3rem 4rem;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 3rem;
+        }
+
+        /* ============================================
+           FILTERS SIDEBAR - Tesla Control Panel
+           ============================================ */
+
+        .filters-sidebar {
+            position: sticky;
+            top: 180px;
+            height: fit-content;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        /* Custom Scrollbar - Tesla Style */
+        .filters-sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .filters-sidebar::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        .filters-sidebar::-webkit-scrollbar-thumb {
+            background: var(--tesla-red);
+            border-radius: 4px;
+        }
+
+        .filters-sidebar::-webkit-scrollbar-thumb:hover {
+            background: var(--tesla-red-hover);
+        }
+
+        .filter-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-medium);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-section:hover {
+            border-color: var(--tesla-red);
+            box-shadow: var(--glow-red);
+        }
+
+        .filter-title {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--tesla-red);
+            margin-bottom: 1.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Filter Inputs - Tesla Style */
+        .author-input, .year-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 2px solid var(--border-medium);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .author-input:focus, .year-input:focus {
+            outline: none;
+            border-color: var(--tesla-red);
+            box-shadow: 0 0 10px var(--tesla-red-glow);
+        }
+
+        .year-range {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .year-input {
+            flex: 1;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .year-separator {
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        /* Conference List - Tesla Checkboxes */
+        .conference-list, .country-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .conference-item, .country-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .conference-item:hover, .country-item:hover {
+            color: var(--tesla-red);
+            transform: translateX(5px);
+        }
+
+        .conference-checkbox, .country-checkbox {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--tesla-red);
+            cursor: pointer;
+        }
+
+        .conference-name, .country-name {
+            flex: 1;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .conference-count, .country-count {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* Clear Filters Button */
+        .clear-filters {
+            width: 100%;
+            padding: 1rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            background: transparent;
+            border: 2px solid var(--tesla-red);
+            border-radius: 8px;
+            color: var(--tesla-red);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .clear-filters:hover {
+            background: var(--tesla-red);
+            color: var(--text-primary);
+            box-shadow: var(--glow-red);
+            transform: translateY(-2px);
+        }
+
+        /* ============================================
+           RESULTS SECTION
+           ============================================ */
+
+        .results-section {
+            min-height: 400px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--tesla-red);
+        }
+
+        .results-count {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .results-count strong {
+            color: var(--tesla-red);
+            font-weight: 800;
+            font-size: 1.3rem;
+        }
+
+        /* ============================================
+           PAPER CARDS - Tesla Minimalist Design
+           ============================================ */
+
+        .paper-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-medium);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .paper-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--tesla-red);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .paper-card:hover {
+            border-color: var(--tesla-red);
+            background: var(--bg-card-hover);
+            box-shadow: var(--glow-red);
+            transform: translateX(10px);
+        }
+
+        .paper-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .paper-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .paper-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .paper-title a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .paper-title a:hover {
+            color: var(--tesla-red);
+        }
+
+        .paper-badges {
+            display: flex;
+            gap: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .badge {
+            padding: 0.4rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-conference {
+            background: var(--tesla-red);
+            color: var(--text-primary);
+            border: 2px solid var(--tesla-red);
+        }
+
+        .badge-year {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 2px solid var(--border-medium);
+        }
+
+        .paper-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .paper-authors {
+            color: var(--text-secondary);
+            flex: 1;
+            min-width: 200px;
+            line-height: 1.8;
+        }
+
+        .author-name {
+            position: relative;
+            cursor: pointer;
+            transition: color 0.2s;
+            border-bottom: 1px dotted var(--text-muted);
+        }
+
+        .author-name:hover {
+            color: var(--tesla-red);
+            border-bottom-color: var(--tesla-red);
+        }
+
+        .author-name.has-profile-links {
+            font-weight: 700;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--tesla-red);
+        }
+
+        .paper-abstract {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-top: 1rem;
+        }
+
+        /* Paper Links */
+        .paper-links {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .paper-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-medium);
+            border-radius: 20px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .paper-link:hover {
+            border-color: var(--tesla-red);
+            color: var(--tesla-red);
+            box-shadow: 0 0 10px var(--tesla-red-glow);
+            transform: translateY(-2px);
+        }
+
+        /* ============================================
+           AI CHAT ASSISTANT - Tesla Floating Bot
+           ============================================ */
+
+        .ai-chat-button {
+            position: fixed;
+            bottom: 2.5rem;
+            right: 2.5rem;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--tesla-red), var(--tesla-red-hover));
+            border: 3px solid var(--tesla-red);
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: var(--glow-red-intense);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai-chat-button:hover {
+            transform: scale(1.15) rotate(5deg);
+            box-shadow: 0 0 30px var(--tesla-red-glow-intense), 0 0 60px var(--tesla-red-glow);
+        }
+
+        .ai-chat-modal {
+            display: none;
+            position: fixed;
+            bottom: 120px;
+            right: 2.5rem;
+            width: 450px;
+            max-width: calc(100vw - 5rem);
+            height: 650px;
+            max-height: calc(100vh - 180px);
+            background: var(--bg-card);
+            border: 2px solid var(--tesla-red);
+            border-radius: 16px;
+            box-shadow: var(--glow-red-intense);
+            z-index: 1001;
+            flex-direction: column;
+        }
+
+        .ai-chat-modal.active {
+            display: flex;
+        }
+
+        .ai-chat-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid var(--tesla-red);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+        }
+
+        .ai-chat-title {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--tesla-red);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .ai-chat-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ai-chat-close:hover {
+            color: var(--tesla-red);
+            transform: rotate(90deg);
+        }
+
+        .ai-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            background: var(--bg-secondary);
+        }
+
+        .ai-message {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            max-width: 85%;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .ai-message.user {
+            align-self: flex-end;
+            background: var(--tesla-red);
+            color: var(--text-primary);
+            border: 2px solid var(--tesla-red);
+        }
+
+        .ai-message.assistant {
+            align-self: flex-start;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 2px solid var(--border-medium);
+        }
+
+        .ai-chat-input-container {
+            padding: 1.5rem;
+            border-top: 2px solid var(--tesla-red);
+            background: var(--bg-card);
+        }
+
+        .ai-chat-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--border-medium);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            resize: none;
+            transition: all 0.3s ease;
+        }
+
+        .ai-chat-input:focus {
+            outline: none;
+            border-color: var(--tesla-red);
+            box-shadow: 0 0 10px var(--tesla-red-glow);
+        }
+
+        /* ============================================
+           LOADING & STATES
+           ============================================ */
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-medium);
+            border-top-color: var(--tesla-red);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--glow-red);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state, .error-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.3;
+        }
+
+        .empty-state h3, .error-state h3 {
+            font-size: 1.5rem;
+            color: var(--tesla-red);
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        /* ============================================
+           PAGINATION - Tesla Style
+           ============================================ */
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+
+        .pagination button {
+            padding: 0.75rem 1.75rem;
+            font-size: 1rem;
+            font-weight: 700;
+            background: var(--bg-card);
+            border: 2px solid var(--border-medium);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            border-color: var(--tesla-red);
+            color: var(--tesla-red);
+            box-shadow: var(--glow-red);
+            transform: translateY(-2px);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* ============================================
+           MODAL OVERLAY
+           ============================================ */
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 2px solid var(--tesla-red);
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--glow-red-intense);
+            transform: translateY(30px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--tesla-red);
+            text-transform: uppercase;
+        }
+
+        .modal-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            font-size: 1rem;
+            border: 2px solid var(--border-medium);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--tesla-red);
+            box-shadow: 0 0 10px var(--tesla-red-glow);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .modal-btn-primary {
+            background: var(--tesla-red);
+            border: 2px solid var(--tesla-red);
+            color: var(--text-primary);
+        }
+
+        .modal-btn-primary:hover {
+            background: var(--tesla-red-hover);
+            box-shadow: var(--glow-red-intense);
+            transform: translateY(-2px);
+        }
+
+        .modal-btn-secondary {
+            background: transparent;
+            border: 2px solid var(--border-medium);
+            color: var(--text-secondary);
+        }
+
+        .modal-btn-secondary:hover {
+            border-color: var(--tesla-red);
+            color: var(--tesla-red);
+        }
+
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+
+        @media (max-width: 1024px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-sidebar {
+                position: static;
+                max-height: none;
+            }
+
+            .header-content,
+            .search-section,
+            main {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .logo-section h1 {
+                font-size: 2rem;
+            }
+
+            .header-top {
+                flex-direction: column;
+                gap: 1.5rem;
+                align-items: flex-start;
+            }
+
+            .nav-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .search-btn {
+                width: 100%;
+            }
+
+            .stats-bar {
+                flex-wrap: wrap;
+                gap: 1.5rem;
+            }
+
+            .ai-chat-modal {
+                width: calc(100vw - 2rem);
+                right: 1rem;
+                bottom: 100px;
+            }
+
+            .ai-chat-button {
+                right: 1.5rem;
+                bottom: 1.5rem;
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content,
+            .search-section,
+            main {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .paper-card {
+                padding: 1.5rem;
+            }
+
+            .paper-title {
+                font-size: 1.1rem;
+            }
+
+            .badge {
+                font-size: 0.7rem;
+                padding: 0.3rem 0.8rem;
+            }
+        }
+
+        /* ============================================
+           UTILITY ANIMATIONS
+           ============================================ */
+
+        @keyframes pulse-red {
+            0%, 100% {
+                box-shadow: 0 0 20px var(--tesla-red-glow);
+            }
+            50% {
+                box-shadow: 0 0 40px var(--tesla-red-glow-intense);
+            }
+        }
+
+        .pulse-animation {
+            animation: pulse-red 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <!-- ============================================
+         HEADER - Tesla Navigation
+         ============================================ -->
+    <header>
+        <div class="header-content">
+            <div class="header-top">
+                <div class="logo-section">
+                    <h1>Papers4AI</h1>
+                </div>
+                <div class="nav-controls">
+                    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode">
+                        <span id="theme-icon">☀️</span>
+                        <span class="theme-toggle-label" id="theme-label">Light</span>
+                    </button>
+                    <button class="admin-btn" onclick="window.location.href='/campaigns.html'">Admin</button>
+                    <button class="auth-btn">Login</button>
+                </div>
+            </div>
+            <div class="subtitle">
+                Search 236,000+ academic papers from CVPR, NeurIPS, ICLR, ICML & more.
+            </div>
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span>Papers:</span>
+                    <span class="stat-value">237,735</span>
+                </div>
+                <div class="stat-item">
+                    <span>Conferences:</span>
+                    <span class="stat-value">31</span>
+                </div>
+                <div class="stat-item">
+                    <span>Years:</span>
+                    <span class="stat-value">1987 - 2026</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================
+         SEARCH SECTION
+         ============================================ -->
+    <section class="search-section">
+        <div class="search-container">
+            <div class="search-input-wrapper">
+                <input
+                    type="text"
+                    class="search-input"
+                    id="searchInput"
+                    placeholder="Search papers... Try 'transformer' or 'neural network'"
+                    onkeypress="handleSearchKeyPress(event)"
+                >
+            </div>
+            <button class="search-btn" onclick="performSearch()">Search</button>
+        </div>
+    </section>
+
+    <!-- ============================================
+         MAIN CONTENT GRID
+         ============================================ -->
+    <main>
+        <!-- FILTERS SIDEBAR -->
+        <aside class="filters-sidebar">
+            <!-- Search by Author -->
+            <div class="filter-section">
+                <h3 class="filter-title">Search by Author</h3>
+                <input
+                    type="text"
+                    class="author-input"
+                    id="authorInput"
+                    placeholder="Search by name..."
+                    onkeyup="filterByAuthor()"
+                >
+            </div>
+
+            <!-- Year Range -->
+            <div class="filter-section">
+                <h3 class="filter-title">Year Range</h3>
+                <div class="year-range">
+                    <input
+                        type="number"
+                        class="year-input"
+                        id="yearFrom"
+                        placeholder="From"
+                        min="1987"
+                        max="2026"
+                        onchange="filterByYear()"
+                    >
+                    <span class="year-separator">—</span>
+                    <input
+                        type="number"
+                        class="year-input"
+                        id="yearTo"
+                        placeholder="To"
+                        min="1987"
+                        max="2026"
+                        onchange="filterByYear()"
+                    >
+                </div>
+            </div>
+
+            <!-- Conferences -->
+            <div class="filter-section">
+                <h3 class="filter-title">Conferences</h3>
+                <div class="conference-list">
+                    <label class="conference-item">
+                        <input type="checkbox" class="conference-checkbox" value="ICLR" onchange="filterByConference()">
+                        <span class="conference-name">ICLR</span>
+                        <span class="conference-count">56,086</span>
+                    </label>
+                    <label class="conference-item">
+                        <input type="checkbox" class="conference-checkbox" value="NeurIPS" onchange="filterByConference()">
+                        <span class="conference-name">NeurIPS</span>
+                        <span class="conference-count">32,177</span>
+                    </label>
+                    <label class="conference-item">
+                        <input type="checkbox" class="conference-checkbox" value="CVPR" onchange="filterByConference()">
+                        <span class="conference-name">CVPR</span>
+                        <span class="conference-count">28,943</span>
+                    </label>
+                    <label class="conference-item">
+                        <input type="checkbox" class="conference-checkbox" value="ICML" onchange="filterByConference()">
+                        <span class="conference-name">ICML</span>
+                        <span class="conference-count">24,512</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Clear Filters -->
+            <button class="clear-filters" onclick="clearAllFilters()">
+                Clear All Filters
+            </button>
+        </aside>
+
+        <!-- RESULTS SECTION -->
+        <section class="results-section">
+            <div class="results-header">
+                <div class="results-count">
+                    Showing <strong id="resultsCount">0</strong> results
+                </div>
+            </div>
+
+            <!-- Results Container -->
+            <div id="resultsContainer">
+                <!-- Initial State -->
+                <div class="empty-state">
+                    <div class="empty-icon">🔍</div>
+                    <h3>Ready to Search</h3>
+                    <p>Enter a search query or apply filters to find academic papers</p>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination" style="display: none;">
+                <button onclick="previousPage()">Previous</button>
+                <span class="page-info">Page <span id="currentPage">1</span> of <span id="totalPages">1</span></span>
+                <button onclick="nextPage()">Next</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============================================
+         AI CHAT ASSISTANT
+         ============================================ -->
+    <button class="ai-chat-button pulse-animation" onclick="toggleAIChat()">
+        🤖
+    </button>
+
+    <div class="ai-chat-modal" id="aiChatModal">
+        <div class="ai-chat-header">
+            <div class="ai-chat-title">AI Assistant</div>
+            <button class="ai-chat-close" onclick="toggleAIChat()">×</button>
+        </div>
+        <div class="ai-chat-messages" id="aiChatMessages">
+            <div class="ai-message assistant">
+                Hello! I'm your AI research assistant. Ask me to find papers, discover trends, or get recommendations.
+                <br><br>
+                <strong>Try:</strong><br>
+                • "Find video generation papers from USA"<br>
+                • "Show me recent CVPR diffusion papers"<br>
+                • "Papers on transformers from 2023-2024"
+            </div>
+        </div>
+        <div class="ai-chat-input-container">
+            <textarea
+                class="ai-chat-input"
+                id="aiChatInput"
+                placeholder="Ask about papers..."
+                rows="3"
+                onkeypress="handleAIChatKeyPress(event)"
+            ></textarea>
+        </div>
+    </div>
+
+    <!-- ============================================
+         JAVASCRIPT FUNCTIONALITY
+         ============================================ -->
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const themeLabel = document.getElementById('theme-label');
+            const currentTheme = body.getAttribute('data-theme');
+
+            if (currentTheme === 'dark') {
+                body.setAttribute('data-theme', 'light');
+                themeIcon.textContent = '🌙';
+                themeLabel.textContent = 'Dark';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                themeLabel.textContent = 'Light';
+            }
+        }
+
+        // AI Chat Toggle
+        function toggleAIChat() {
+            const modal = document.getElementById('aiChatModal');
+            modal.classList.toggle('active');
+        }
+
+        // Search Functionality
+        function performSearch() {
+            const searchInput = document.getElementById('searchInput').value;
+            console.log('Searching for:', searchInput);
+
+            // Show loading state
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Searching papers...</p>
+                </div>
+            `;
+
+            // Simulate API call (replace with actual API endpoint)
+            setTimeout(() => {
+                displaySampleResults();
+            }, 1000);
+        }
+
+        // Sample Results Display
+        function displaySampleResults() {
+            const resultsContainer = document.getElementById('resultsContainer');
+            document.getElementById('resultsCount').textContent = '3';
+
+            resultsContainer.innerHTML = `
+                <div class="paper-card">
+                    <div class="paper-header">
+                        <h3 class="paper-title">
+                            <a href="#">Attention Is All You Need</a>
+                        </h3>
+                        <div class="paper-badges">
+                            <span class="badge badge-conference">NeurIPS</span>
+                            <span class="badge badge-year">2017</span>
+                        </div>
+                    </div>
+                    <div class="paper-meta">
+                        <div class="paper-authors">
+                            <span class="author-name">Vaswani, A.</span>,
+                            <span class="author-name">Shazeer, N.</span>,
+                            <span class="author-name">Parmar, N.</span>
+                        </div>
+                    </div>
+                    <div class="paper-abstract">
+                        The dominant sequence transduction models are based on complex recurrent or convolutional neural networks...
+                    </div>
+                    <div class="paper-links">
+                        <a href="#" class="paper-link">📄 PDF</a>
+                        <a href="#" class="paper-link">🔗 ArXiv</a>
+                        <a href="#" class="paper-link">📚 Cite</a>
+                    </div>
+                </div>
+
+                <div class="paper-card">
+                    <div class="paper-header">
+                        <h3 class="paper-title">
+                            <a href="#">Deep Residual Learning for Image Recognition</a>
+                        </h3>
+                        <div class="paper-badges">
+                            <span class="badge badge-conference">CVPR</span>
+                            <span class="badge badge-year">2016</span>
+                        </div>
+                    </div>
+                    <div class="paper-meta">
+                        <div class="paper-authors">
+                            <span class="author-name has-profile-links">He, K.</span>,
+                            <span class="author-name">Zhang, X.</span>,
+                            <span class="author-name">Ren, S.</span>
+                        </div>
+                    </div>
+                    <div class="paper-abstract">
+                        Deeper neural networks are more difficult to train. We present a residual learning framework...
+                    </div>
+                    <div class="paper-links">
+                        <a href="#" class="paper-link">📄 PDF</a>
+                        <a href="#" class="paper-link">🔗 ArXiv</a>
+                        <a href="#" class="paper-link">📚 Cite</a>
+                    </div>
+                </div>
+
+                <div class="paper-card">
+                    <div class="paper-header">
+                        <h3 class="paper-title">
+                            <a href="#">BERT: Pre-training of Deep Bidirectional Transformers</a>
+                        </h3>
+                        <div class="paper-badges">
+                            <span class="badge badge-conference">NAACL</span>
+                            <span class="badge badge-year">2019</span>
+                        </div>
+                    </div>
+                    <div class="paper-meta">
+                        <div class="paper-authors">
+                            <span class="author-name">Devlin, J.</span>,
+                            <span class="author-name">Chang, M.</span>,
+                            <span class="author-name">Lee, K.</span>
+                        </div>
+                    </div>
+                    <div class="paper-abstract">
+                        We introduce a new language representation model called BERT, which stands for Bidirectional Encoder...
+                    </div>
+                    <div class="paper-links">
+                        <a href="#" class="paper-link">📄 PDF</a>
+                        <a href="#" class="paper-link">🔗 ArXiv</a>
+                        <a href="#" class="paper-link">📚 Cite</a>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('pagination').style.display = 'flex';
+        }
+
+        // Filter Functions
+        function filterByAuthor() {
+            const authorInput = document.getElementById('authorInput').value;
+            console.log('Filtering by author:', authorInput);
+        }
+
+        function filterByYear() {
+            const yearFrom = document.getElementById('yearFrom').value;
+            const yearTo = document.getElementById('yearTo').value;
+            console.log('Filtering by year range:', yearFrom, '-', yearTo);
+        }
+
+        function filterByConference() {
+            const checkboxes = document.querySelectorAll('.conference-checkbox:checked');
+            const selectedConferences = Array.from(checkboxes).map(cb => cb.value);
+            console.log('Selected conferences:', selectedConferences);
+        }
+
+        function clearAllFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('authorInput').value = '';
+            document.getElementById('yearFrom').value = '';
+            document.getElementById('yearTo').value = '';
+            document.querySelectorAll('.conference-checkbox').forEach(cb => cb.checked = false);
+            console.log('All filters cleared');
+        }
+
+        // Pagination
+        let currentPage = 1;
+        function nextPage() {
+            currentPage++;
+            document.getElementById('currentPage').textContent = currentPage;
+            console.log('Next page:', currentPage);
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                document.getElementById('currentPage').textContent = currentPage;
+                console.log('Previous page:', currentPage);
+            }
+        }
+
+        // Keyboard Shortcuts
+        function handleSearchKeyPress(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        }
+
+        function handleAIChatKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendAIMessage();
+            }
+        }
+
+        function sendAIMessage() {
+            const input = document.getElementById('aiChatInput');
+            const message = input.value.trim();
+
+            if (message) {
+                const messagesContainer = document.getElementById('aiChatMessages');
+
+                // Add user message
+                const userMessage = document.createElement('div');
+                userMessage.className = 'ai-message user';
+                userMessage.textContent = message;
+                messagesContainer.appendChild(userMessage);
+
+                // Clear input
+                input.value = '';
+
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                // Simulate AI response
+                setTimeout(() => {
+                    const aiMessage = document.createElement('div');
+                    aiMessage.className = 'ai-message assistant';
+                    aiMessage.textContent = 'I understand you\'re looking for information about: ' + message + '. Let me search our database for relevant papers.';
+                    messagesContainer.appendChild(aiMessage);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 500);
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Papers4AI - Tesla Design Loaded');
+        });
+    </script>
+</body>
+</html>

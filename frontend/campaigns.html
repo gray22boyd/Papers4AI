@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sourcing Campaigns - Papers4AI</title>
+
+    <!-- React and React-Beautiful-DND -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/react-beautiful-dnd@13.1.1/dist/react-beautiful-dnd.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0f;
+            color: #f0f0f5;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Campaign List */
+        .campaign-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .campaign-card {
+            background: #12121a;
+            border: 1px solid #2a2a3a;
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .campaign-card:hover {
+            border-color: #E82127;
+            transform: translateY(-2px);
+        }
+
+        .campaign-card h3 {
+            margin-bottom: 0.5rem;
+            color: #f0f0f5;
+        }
+
+        .campaign-card p {
+            color: #8888aa;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .campaign-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #8888aa;
+        }
+
+        /* Kanban Board */
+        .kanban-board {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 2rem;
+        }
+
+        .kanban-column {
+            flex: 0 0 320px;
+            background: #12121a;
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+        }
+
+        .column-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .column-count {
+            background: #1a1a25;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: #8888aa;
+        }
+
+        .candidates-list {
+            min-height: 200px;
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+        }
+
+        /* Candidate Card */
+        .candidate-card {
+            background: #1a1a25;
+            border: 1px solid #2a2a3a;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            cursor: grab;
+            transition: all 0.2s;
+        }
+
+        .candidate-card:hover {
+            border-color: #E82127;
+            box-shadow: 0 4px 12px rgba(232, 33, 39, 0.15);
+        }
+
+        .candidate-card.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .candidate-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .candidate-meta {
+            font-size: 0.85rem;
+            color: #8888aa;
+            margin-bottom: 0.5rem;
+        }
+
+        .candidate-tasks {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .task-badge {
+            background: #2a2a3a;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .task-badge.overdue {
+            background: #ef4444;
+            color: white;
+        }
+
+        .task-badge.completed {
+            background: #10b981;
+            color: white;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #E82127;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #FF3A3F;
+        }
+
+        .btn-secondary {
+            background: #2a2a3a;
+            color: #f0f0f5;
+        }
+
+        .btn-secondary:hover {
+            background: #3a3a4a;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: #12121a;
+            border: 1px solid #2a2a3a;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal h2 {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #8888aa;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: #1a1a25;
+            border: 1px solid #2a2a3a;
+            border-radius: 8px;
+            color: #f0f0f5;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* Timeline */
+        .timeline {
+            margin-top: 2rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-left: 2px solid #2a2a3a;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 1.5rem;
+            width: 10px;
+            height: 10px;
+            background: #E82127;
+            border-radius: 50%;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-date {
+            font-size: 0.85rem;
+            color: #8888aa;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #8888aa;
+        }
+
+        .empty-state h3 {
+            color: #f0f0f5;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Stage Editor */
+        .stage-editor {
+            background: #1a1a25;
+            border: 1px solid #2a2a3a;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .stage-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stage-color-swatch {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: 2px solid #3a3a4a;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: transform 0.15s;
+        }
+
+        .stage-color-swatch:hover {
+            transform: scale(1.15);
+        }
+
+        .stage-name-input {
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            background: #12121a;
+            border: 1px solid #2a2a3a;
+            border-radius: 6px;
+            color: #f0f0f5;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .stage-name-input:focus {
+            outline: none;
+            border-color: #E82127;
+        }
+
+        .stage-remove-btn {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            opacity: 0.6;
+            transition: opacity 0.15s;
+        }
+
+        .stage-remove-btn:hover {
+            opacity: 1;
+        }
+
+        .stage-remove-btn:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+        }
+
+        .stage-add-btn {
+            background: none;
+            border: 1px dashed #3a3a4a;
+            color: #8888aa;
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 0.5rem;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+
+        .stage-add-btn:hover {
+            border-color: #E82127;
+            color: #E82127;
+        }
+
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 0.5rem 0;
+            color: #8888aa;
+            font-size: 0.9rem;
+            user-select: none;
+        }
+
+        .collapsible-header:hover {
+            color: #f0f0f5;
+        }
+
+        .btn-danger {
+            background: #2a1a1a;
+            color: #ef4444;
+            border: 1px solid #3a2a2a;
+        }
+
+        .btn-danger:hover {
+            background: #3a2020;
+            border-color: #ef4444;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .inline-panel {
+            background: #12121a;
+            border: 1px solid #2a2a3a;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .inline-panel h3 {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .confirm-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1100;
+        }
+
+        .confirm-box {
+            background: #12121a;
+            border: 1px solid #ef4444;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .confirm-box h3 {
+            margin-bottom: 0.75rem;
+        }
+
+        .confirm-box p {
+            color: #8888aa;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { DragDropContext, Droppable, Draggable } = window.ReactBeautifulDnd;
+
+        // Auth helper
+        function getAuthHeaders() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return null;
+            return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+        }
+
+        // API helper
+        const api = {
+            async getCampaigns() {
+                const headers = getAuthHeaders();
+                if (!headers) return { error: 'Not authenticated' };
+                const res = await fetch('/api/campaigns', { headers });
+                if (res.status === 401 || res.status === 403) return { error: 'Not authenticated' };
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    return { error: errorData.error || 'Failed to load campaigns' };
+                }
+                return res.json();
+            },
+            async createCampaign(data) {
+                const headers = getAuthHeaders();
+                if (!headers) return { error: 'Not authenticated' };
+                const res = await fetch('/api/campaigns', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(data)
+                });
+                return res.json();
+            },
+            async getCampaign(id) {
+                const headers = getAuthHeaders();
+                if (!headers) return { error: 'Not authenticated' };
+                const res = await fetch(`/api/campaigns/${id}`, { headers });
+                return res.json();
+            },
+            async moveCandidate(campaignId, candidateId, stageId) {
+                const headers = getAuthHeaders();
+                if (!headers) return { error: 'Not authenticated' };
+                const res = await fetch(`/api/campaigns/${campaignId}/candidates/${candidateId}/move`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ stage_id: stageId })
+                });
+                return res.json();
+            },
+            async addTask(campaignId, candidateId, task) {
+                const headers = getAuthHeaders();
+                if (!headers) return { error: 'Not authenticated' };
+                const res = await fetch(`/api/campaigns/${campaignId}/candidates/${candidateId}/tasks`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(task)
+                });
+                return res.json();
+            },
+            async updateCampaign(id, data) {
+                const headers = getAuthHeaders();
+                if (!headers) return { error: 'Not authenticated' };
+                const res = await fetch(`/api/campaigns/${id}`, {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify(data)
+                });
+                return res.json();
+            },
+            async deleteCampaign(id) {
+                const headers = getAuthHeaders();
+                if (!headers) return { error: 'Not authenticated' };
+                const res = await fetch(`/api/campaigns/${id}`, {
+                    method: 'DELETE',
+                    headers
+                });
+                return res.json();
+            }
+        };
+
+        // Campaign List Component
+        function CampaignList({ onSelectCampaign, onCreateNew }) {
+            const [campaigns, setCampaigns] = useState([]);
+            const [loading, setLoading] = useState(true);
+
+            const [error, setError] = useState(null);
+
+            useEffect(() => {
+                api.getCampaigns().then(data => {
+                    if (data.error) {
+                        setError(data.error);
+                    } else {
+                        setCampaigns(data.campaigns || []);
+                    }
+                    setLoading(false);
+                }).catch(() => {
+                    setError('Failed to load campaigns');
+                    setLoading(false);
+                });
+            }, []);
+
+            if (loading) return <div style={{textAlign: 'center', padding: '4rem'}}>Loading campaigns...</div>;
+
+            if (error) {
+                return (
+                    <div className="empty-state">
+                        <h3>Authentication Required</h3>
+                        <p>{error}</p>
+                        <p>Please <a href="/" style={{color: '#E82127'}}>go back to the main page</a> and log in.</p>
+                    </div>
+                );
+            }
+
+            if (campaigns.length === 0) {
+                return (
+                    <div className="empty-state">
+                        <h3>No Campaigns Yet</h3>
+                        <p>Create your first sourcing campaign to start tracking candidates</p>
+                        <button className="btn btn-primary" onClick={onCreateNew}>
+                            Create Campaign
+                        </button>
+                    </div>
+                );
+            }
+
+            return (
+                <div>
+                    <div className="header">
+                        <h1>Sourcing Campaigns</h1>
+                        <button className="btn btn-primary" onClick={onCreateNew}>
+                            + New Campaign
+                        </button>
+                    </div>
+                    <div className="campaign-grid">
+                        {campaigns.map(campaign => (
+                            <div
+                                key={campaign.id}
+                                className="campaign-card"
+                                onClick={() => onSelectCampaign(campaign.id)}
+                            >
+                                <h3>{campaign.name}</h3>
+                                <p>{campaign.description || 'No description'}</p>
+                                <div className="campaign-stats">
+                                    <span>{Object.keys(campaign.candidates || {}).length} candidates</span>
+                                    <span>•</span>
+                                    <span>{campaign.stages?.length || 0} stages</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // Kanban Board Component
+        function KanbanBoard({ campaign, onUpdate }) {
+            const [candidates, setCandidates] = useState({});
+
+            useEffect(() => {
+                setCandidates(campaign.candidates || {});
+            }, [campaign]);
+
+            const handleDragEnd = async (result) => {
+                if (!result.destination) return;
+
+                const candidateId = result.draggableId;
+                const newStageId = result.destination.droppableId;
+
+                // Optimistic update
+                setCandidates(prev => ({
+                    ...prev,
+                    [candidateId]: {
+                        ...prev[candidateId],
+                        stage_id: newStageId
+                    }
+                }));
+
+                // API call
+                await api.moveCandidate(campaign.id, candidateId, newStageId);
+                onUpdate();
+            };
+
+            const getCandidatesForStage = (stageId) => {
+                return Object.values(candidates).filter(c => c.stage_id === stageId);
+            };
+
+            return (
+                <DragDropContext onDragEnd={handleDragEnd}>
+                    <div className="kanban-board">
+                        {campaign.stages.map(stage => {
+                            const stageCandidates = getCandidatesForStage(stage.id);
+
+                            return (
+                                <div key={stage.id} className="kanban-column">
+                                    <div className="column-header">
+                                        <span
+                                            className="column-title"
+                                            style={{ color: stage.color }}
+                                        >
+                                            {stage.name}
+                                        </span>
+                                        <span className="column-count">
+                                            {stageCandidates.length}
+                                        </span>
+                                    </div>
+
+                                    <Droppable droppableId={stage.id}>
+                                        {(provided, snapshot) => (
+                                            <div
+                                                ref={provided.innerRef}
+                                                {...provided.droppableProps}
+                                                className="candidates-list"
+                                                style={{
+                                                    background: snapshot.isDraggingOver ? '#1a1a30' : 'transparent'
+                                                }}
+                                            >
+                                                {stageCandidates.map((candidate, index) => (
+                                                    <CandidateCard
+                                                        key={candidate.id}
+                                                        candidate={candidate}
+                                                        index={index}
+                                                    />
+                                                ))}
+                                                {provided.placeholder}
+                                            </div>
+                                        )}
+                                    </Droppable>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </DragDropContext>
+            );
+        }
+
+        // Candidate Card Component
+        function CandidateCard({ candidate, index }) {
+            const tasks = candidate.tasks || [];
+            const overdueTasks = tasks.filter(t =>
+                !t.completed && t.due_date && new Date(t.due_date) < new Date()
+            );
+
+            return (
+                <Draggable draggableId={candidate.id} index={index}>
+                    {(provided, snapshot) => (
+                        <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className={`candidate-card ${snapshot.isDragging ? 'dragging' : ''}`}
+                        >
+                            <div className="candidate-name">
+                                {candidate.candidate_data.name}
+                            </div>
+                            <div className="candidate-meta">
+                                {candidate.candidate_data.affiliation || 'Unknown affiliation'}
+                            </div>
+                            {tasks.length > 0 && (
+                                <div className="candidate-tasks">
+                                    {overdueTasks.length > 0 && (
+                                        <span className="task-badge overdue">
+                                            {overdueTasks.length} overdue
+                                        </span>
+                                    )}
+                                    {tasks.filter(t => t.completed).length > 0 && (
+                                        <span className="task-badge completed">
+                                            {tasks.filter(t => t.completed).length} done
+                                        </span>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </Draggable>
+            );
+        }
+
+        // Preset colors for stage color cycling
+        const STAGE_COLORS = [
+            '#6B7280', '#3B82F6', '#F59E0B', '#10B981', '#8B5CF6',
+            '#EF4444', '#EC4899', '#06B6D4', '#059669', '#F97316'
+        ];
+
+        // Default stages for new campaigns
+        const DEFAULT_STAGES = [
+            { id: 'new', name: 'New Leads', color: '#6B7280' },
+            { id: 'contacted', name: 'Contacted', color: '#3B82F6' },
+            { id: 'follow_up', name: 'Follow Up', color: '#F59E0B' }
+        ];
+
+        // Stage Editor Component
+        function StageEditor({ stages, onChange }) {
+            const updateStage = (index, field, value) => {
+                const updated = stages.map((s, i) => i === index ? { ...s, [field]: value } : s);
+                onChange(updated);
+            };
+
+            const cycleColor = (index) => {
+                const current = STAGE_COLORS.indexOf(stages[index].color);
+                const next = (current + 1) % STAGE_COLORS.length;
+                updateStage(index, 'color', STAGE_COLORS[next]);
+            };
+
+            const removeStage = (index) => {
+                if (stages.length <= 1) return;
+                onChange(stages.filter((_, i) => i !== index));
+            };
+
+            const addStage = () => {
+                const id = 'stage_' + Date.now();
+                const colorIndex = stages.length % STAGE_COLORS.length;
+                onChange([...stages, { id, name: '', color: STAGE_COLORS[colorIndex] }]);
+            };
+
+            return (
+                <div className="stage-editor">
+                    {stages.map((stage, i) => (
+                        <div key={stage.id} className="stage-row">
+                            <div
+                                className="stage-color-swatch"
+                                style={{ background: stage.color }}
+                                onClick={() => cycleColor(i)}
+                                title="Click to change color"
+                            />
+                            <input
+                                className="stage-name-input"
+                                type="text"
+                                value={stage.name}
+                                onChange={e => updateStage(i, 'name', e.target.value)}
+                                placeholder="Stage name..."
+                            />
+                            <button
+                                className="stage-remove-btn"
+                                onClick={() => removeStage(i)}
+                                disabled={stages.length <= 1}
+                                title="Remove stage"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    ))}
+                    <button className="stage-add-btn" onClick={addStage}>
+                        + Add Stage
+                    </button>
+                </div>
+            );
+        }
+
+        // Campaign View Component
+        function CampaignView({ campaignId, onBack }) {
+            const [campaign, setCampaign] = useState(null);
+            const [stats, setStats] = useState(null);
+            const [loading, setLoading] = useState(true);
+            const [editingStages, setEditingStages] = useState(false);
+            const [editedStages, setEditedStages] = useState([]);
+            const [savingStages, setSavingStages] = useState(false);
+            const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+            const loadCampaign = async () => {
+                const data = await api.getCampaign(campaignId);
+                setCampaign(data.campaign);
+                setStats(data.stats);
+                setLoading(false);
+            };
+
+            useEffect(() => {
+                loadCampaign();
+            }, [campaignId]);
+
+            const handleEditStages = () => {
+                setEditedStages(campaign.stages.map(s => ({ ...s })));
+                setEditingStages(true);
+            };
+
+            const handleSaveStages = async () => {
+                const valid = editedStages.filter(s => s.name.trim());
+                if (valid.length === 0) return;
+                setSavingStages(true);
+                const result = await api.updateCampaign(campaignId, { stages: valid });
+                if (result.campaign) {
+                    setCampaign(result.campaign);
+                }
+                setSavingStages(false);
+                setEditingStages(false);
+            };
+
+            const handleDeleteCampaign = async () => {
+                await api.deleteCampaign(campaignId);
+                onBack();
+            };
+
+            if (loading) return <div>Loading campaign...</div>;
+
+            return (
+                <div>
+                    <div className="header">
+                        <div>
+                            <button className="btn btn-secondary" onClick={onBack}>
+                                ← Back to Campaigns
+                            </button>
+                            <h1 style={{ marginTop: '1rem' }}>{campaign.name}</h1>
+                            {campaign.description && <p style={{ color: '#8888aa' }}>{campaign.description}</p>}
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                            {stats && (
+                                <div style={{ textAlign: 'right', marginRight: '1rem' }}>
+                                    <div>{stats.total_candidates} candidates</div>
+                                    <div>{stats.completed_tasks}/{stats.total_tasks} tasks done</div>
+                                    {stats.overdue_tasks > 0 && (
+                                        <div style={{ color: '#ef4444' }}>
+                                            {stats.overdue_tasks} overdue
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            <button className="btn btn-secondary btn-sm" onClick={handleEditStages}>
+                                Edit Stages
+                            </button>
+                            <button className="btn btn-danger btn-sm" onClick={() => setShowDeleteConfirm(true)}>
+                                Delete Campaign
+                            </button>
+                        </div>
+                    </div>
+
+                    {editingStages && (
+                        <div className="inline-panel">
+                            <h3>Edit Pipeline Stages</h3>
+                            <StageEditor stages={editedStages} onChange={setEditedStages} />
+                            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                                <button className="btn btn-secondary btn-sm" onClick={() => setEditingStages(false)}>
+                                    Cancel
+                                </button>
+                                <button
+                                    className="btn btn-primary btn-sm"
+                                    onClick={handleSaveStages}
+                                    disabled={savingStages}
+                                >
+                                    {savingStages ? 'Saving...' : 'Save Stages'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    <KanbanBoard campaign={campaign} onUpdate={loadCampaign} />
+
+                    {showDeleteConfirm && (
+                        <div className="confirm-overlay" onClick={() => setShowDeleteConfirm(false)}>
+                            <div className="confirm-box" onClick={e => e.stopPropagation()}>
+                                <h3>Delete Campaign?</h3>
+                                <p>This will permanently delete "{campaign.name}" and all its candidates. This cannot be undone.</p>
+                                <div className="confirm-actions">
+                                    <button className="btn btn-secondary" onClick={() => setShowDeleteConfirm(false)}>
+                                        Cancel
+                                    </button>
+                                    <button className="btn btn-danger" onClick={handleDeleteCampaign}>
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // Create Campaign Modal
+        function CreateCampaignModal({ onClose, onCreate }) {
+            const [name, setName] = useState('');
+            const [description, setDescription] = useState('');
+            const [stages, setStages] = useState(DEFAULT_STAGES.map(s => ({ ...s })));
+            const [showStages, setShowStages] = useState(false);
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                const validStages = stages.filter(s => s.name.trim());
+                const data = await api.createCampaign({
+                    name,
+                    description,
+                    stages: validStages.length > 0 ? validStages : undefined
+                });
+                onCreate(data.campaign);
+            };
+
+            return (
+                <div className="modal-overlay" onClick={onClose}>
+                    <div className="modal" onClick={e => e.stopPropagation()}>
+                        <h2>Create New Campaign</h2>
+                        <form onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <label>Campaign Name</label>
+                                <input
+                                    type="text"
+                                    value={name}
+                                    onChange={e => setName(e.target.value)}
+                                    placeholder="e.g., Senior RL Engineers"
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Description (optional)</label>
+                                <textarea
+                                    value={description}
+                                    onChange={e => setDescription(e.target.value)}
+                                    placeholder="Describe what you're looking for..."
+                                />
+                            </div>
+                            <div className="form-group">
+                                <div
+                                    className="collapsible-header"
+                                    onClick={() => setShowStages(!showStages)}
+                                >
+                                    <span>Pipeline Stages</span>
+                                    <span>{showStages ? '▲' : '▼'}</span>
+                                </div>
+                                {showStages && (
+                                    <StageEditor stages={stages} onChange={setStages} />
+                                )}
+                                {!showStages && (
+                                    <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.25rem' }}>
+                                        {stages.map(s => s.name).join(' → ')}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="modal-actions">
+                                <button type="button" className="btn btn-secondary" onClick={onClose}>
+                                    Cancel
+                                </button>
+                                <button type="submit" className="btn btn-primary">
+                                    Create Campaign
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            );
+        }
+
+        // Main App Component
+        function App() {
+            const [view, setView] = useState('list'); // 'list' or 'campaign'
+            const [selectedCampaignId, setSelectedCampaignId] = useState(null);
+            const [showCreateModal, setShowCreateModal] = useState(false);
+
+            const handleSelectCampaign = (id) => {
+                setSelectedCampaignId(id);
+                setView('campaign');
+            };
+
+            const handleCreateCampaign = (campaign) => {
+                setShowCreateModal(false);
+                setSelectedCampaignId(campaign.id);
+                setView('campaign');
+            };
+
+            return (
+                <div className="container">
+                    {view === 'list' ? (
+                        <CampaignList
+                            onSelectCampaign={handleSelectCampaign}
+                            onCreateNew={() => setShowCreateModal(true)}
+                        />
+                    ) : (
+                        <CampaignView
+                            campaignId={selectedCampaignId}
+                            onBack={() => setView('list')}
+                        />
+                    )}
+
+                    {showCreateModal && (
+                        <CreateCampaignModal
+                            onClose={() => setShowCreateModal(false)}
+                            onCreate={handleCreateCampaign}
+                        />
+                    )}
+                </div>
+            );
+        }
+
+        // Render
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

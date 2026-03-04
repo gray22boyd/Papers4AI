@@ -4,73 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Papers4AI - Academic Paper Search Engine</title>
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    
+
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Search 236,000+ academic papers from top AI/ML conferences including CVPR, NeurIPS, ICLR, ICML, and more. Boolean search, author profiles, and filters.">
+    <meta name="description" content="Search 236,000+ academic papers from top AI/ML conferences including CVPR, NeurIPS, ICLR, ICML, and more.">
     <meta name="keywords" content="academic papers, research papers, AI, machine learning, deep learning, NeurIPS, CVPR, ICLR, ICML, paper search">
-    <meta name="author" content="Papers4AI">
-    
-    <!-- Open Graph (Social Sharing) -->
-    <meta property="og:title" content="Papers4AI - Academic Paper Search Engine">
-    <meta property="og:description" content="Search 236,000+ academic papers from top AI/ML conferences. Boolean search, author profiles, and filters.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://papers4ai.com">
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Papers4AI - Academic Paper Search Engine">
-    <meta name="twitter:description" content="Search 236,000+ academic papers from top AI/ML conferences.">
-    
+
+    <!-- Google Fonts - Tesla-inspired typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
     <style>
+        /* ============================================
+           TESLA-INSPIRED DESIGN SYSTEM
+           Deep Black | Crisp White | Tesla Red
+           ============================================ */
+
         :root {
-            --bg-dark: #000000;
+            /* Tesla Color Palette */
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
             --bg-card: #111111;
-            --bg-hover: #1a1a1a;
-            --bg-popover: #1a1a1a;
-            --border: #2a2a2a;
+            --bg-card-hover: #1a1a1a;
+
             --text-primary: #FFFFFF;
             --text-secondary: #b3b3b3;
             --text-muted: #666666;
-            --accent: #CC0000;
-            --accent-glow: rgba(204, 0, 0, 0.5);
-            --accent-hover: #FF0000;
-            --conference-bg: #1a1a1a;
-            --success: #4ade80;
-            --warning: #fbbf24;
-            --link-scholar: #4285f4;
-            --link-homepage: #10b981;
-            --link-linkedin: #0a66c2;
-            --link-orcid: #a6ce39;
-            --link-dblp: #004f9f;
+
+            --tesla-red: #CC0000;
+            --tesla-red-hover: #FF0000;
+            --tesla-red-glow: rgba(204, 0, 0, 0.5);
+            --tesla-red-glow-intense: rgba(204, 0, 0, 0.8);
+
+            --border-subtle: #1a1a1a;
+            --border-medium: #2a2a2a;
+            --border-red: #CC0000;
+
+            /* Shadows & Effects */
+            --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --shadow-intense: 0 8px 32px rgba(0, 0, 0, 0.6);
+            --glow-red: 0 0 20px var(--tesla-red-glow), 0 0 40px var(--tesla-red-glow);
+            --glow-red-intense: 0 0 20px var(--tesla-red-glow-intense), 0 0 40px var(--tesla-red-glow-intense), 0 0 60px var(--tesla-red-glow);
         }
 
-        /* Light Mode */
+        /* Light Mode Override */
         [data-theme="light"] {
-            --bg-dark: #FFFFFF;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F5F5F5;
             --bg-card: #FAFAFA;
-            --bg-hover: #F0F0F0;
-            --bg-popover: #FFFFFF;
-            --border: #E0E0E0;
+            --bg-card-hover: #F0F0F0;
+
             --text-primary: #000000;
             --text-secondary: #4d4d4d;
             --text-muted: #999999;
-            --accent: #CC0000;
-            --accent-glow: rgba(204, 0, 0, 0.15);
-            --accent-hover: #FF0000;
-            --conference-bg: #F5F5F5;
+
+            --border-subtle: #E0E0E0;
+            --border-medium: #CCCCCC;
+
+            --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --shadow-intense: 0 8px 32px rgba(0, 0, 0, 0.16);
         }
 
-        /* Light mode header fix */
-        [data-theme="light"] header {
-            background: #FFFFFF;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        }
+        /* ============================================
+           RESET & BASE STYLES
+           ============================================ */
 
         * {
             margin: 0;
@@ -79,8 +81,8 @@
         }
 
         body {
-            font-family: 'Inter', 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-dark);
+            font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
             line-height: 1.6;
@@ -91,9 +93,10 @@
         /* ============================================
            HEADER - Tesla-Style Navigation
            ============================================ */
+
         header {
-            background: var(--bg-dark);
-            border-bottom: 1px solid var(--accent);
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-red);
             padding: 2rem 0;
             position: sticky;
             top: 0;
@@ -108,51 +111,6 @@
             padding: 0 3rem;
         }
 
-        h1 {
-            font-family: 'Inter', sans-serif;
-            font-size: 3rem;
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-transform: uppercase;
-        }
-
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            font-weight: 400;
-            margin-bottom: 1rem;
-            letter-spacing: 0.01em;
-        }
-
-        .stats-bar {
-            display: flex;
-            gap: 3rem;
-            margin-top: 1rem;
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            padding-top: 1rem;
-            border-top: 1px solid var(--border);
-        }
-
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text-secondary);
-        }
-
-        .stat-value {
-            color: var(--accent);
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-
-        /* Theme Toggle */
         .header-top {
             display: flex;
             justify-content: space-between;
@@ -160,9 +118,29 @@
             margin-bottom: 1.5rem;
         }
 
+        .logo-section h1 {
+            font-family: 'Inter', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--tesla-red) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        /* Theme Toggle - Tesla Style */
         .theme-toggle {
             background: var(--bg-card);
-            border: 2px solid var(--border);
+            border: 2px solid var(--border-medium);
             border-radius: 50px;
             padding: 0.6rem 1.2rem;
             cursor: pointer;
@@ -176,165 +154,79 @@
         }
 
         .theme-toggle:hover {
-            border-color: var(--accent);
+            border-color: var(--tesla-red);
             color: var(--text-primary);
-            box-shadow: 0 0 20px var(--accent-glow);
+            box-shadow: var(--glow-red);
             transform: translateY(-2px);
         }
 
-        .theme-toggle-label {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        /* Authentication UI */
-        .auth-container {
-            display: flex;
-            align-items: center;
-        }
-
-        .auth-section {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .auth-btn {
-            padding: 0.6rem 1.5rem;
-            border: 2px solid var(--accent);
+        /* Auth Buttons - Tesla Red */
+        .auth-btn, .admin-btn {
+            padding: 0.75rem 2rem;
+            border: 2px solid var(--tesla-red);
             background: transparent;
-            color: var(--accent);
+            color: var(--tesla-red);
             border-radius: 50px;
             cursor: pointer;
             font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             transition: all 0.3s ease;
         }
 
-        .auth-btn:hover {
-            background: var(--accent);
+        .auth-btn:hover, .admin-btn:hover {
+            background: var(--tesla-red);
             color: var(--text-primary);
-            box-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow);
-            transform: translateY(-2px);
-        }
-
-        .auth-btn-secondary {
-            border-color: var(--border);
-            color: var(--text-secondary);
-        }
-
-        .auth-btn-secondary:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            background: transparent;
-        }
-
-        .username-display {
-            padding: 0.5rem 1rem;
-            color: var(--text-primary);
-            font-weight: 600;
-            font-size: 0.9rem;
+            box-shadow: var(--glow-red-intense);
+            transform: translateY(-3px);
         }
 
         .admin-btn {
-            background: var(--accent);
+            background: var(--tesla-red);
             color: var(--text-primary);
-            border: 2px solid var(--accent);
-            border-radius: 50px;
         }
 
         .admin-btn:hover {
-            background: var(--accent-hover);
-            box-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow);
+            background: var(--tesla-red-hover);
+            box-shadow: var(--glow-red-intense);
         }
 
-        /* Auth Modal Additions */
-        .modal-large .modal {
-            max-width: 700px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .admin-tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid var(--border);
-        }
-
-        .tab-btn {
-            padding: 0.75rem 1.25rem;
-            background: transparent;
-            border: none;
+        /* Subtitle & Stats */
+        .subtitle {
             color: var(--text-secondary);
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 600;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
-
-        .tab-btn.active {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-        }
-
-        .tab-btn:hover {
-            color: var(--text-primary);
-        }
-
-        .user-card {
-            background: var(--bg-card);
-            border: 2px solid var(--border);
-            padding: 1.25rem;
-            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 400;
             margin-bottom: 1rem;
-            transition: all 0.3s ease;
+            letter-spacing: 0.01em;
         }
 
-        .user-card:hover {
-            border-color: var(--accent);
-        }
-
-        .user-card-header {
+        .stats-bar {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.5rem;
+            gap: 3rem;
+            font-size: 0.95rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-subtle);
         }
 
-        .user-info { flex: 1; }
-        .user-name { font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem; }
-        .user-email { color: var(--text-secondary); font-size: 0.9rem; }
-        .user-meta { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem; }
-
-        .note-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
-        .note-author { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; }
-
-        .edit-note-btn, .delete-note-btn {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.85rem;
-            border-radius: 6px;
-            border: 2px solid var(--border);
-            background: transparent;
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
         }
 
-        .edit-note-btn:hover { border-color: var(--accent); color: var(--accent); }
-        .delete-note-btn:hover { border-color: #ef4444; color: #ef4444; }
+        .stat-value {
+            color: var(--tesla-red);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
 
         /* ============================================
-           SEARCH SECTION - Tesla Command Center
+           SEARCH SECTION - Tesla Command Center Style
            ============================================ */
+
         .search-section {
             max-width: 1400px;
             margin: 3rem auto;
@@ -357,7 +249,7 @@
             padding: 1.5rem 2rem;
             font-size: 1.2rem;
             font-weight: 500;
-            border: 2px solid var(--border);
+            border: 2px solid var(--border-medium);
             border-radius: 12px;
             background: var(--bg-card);
             color: var(--text-primary);
@@ -367,9 +259,9 @@
 
         .search-input:focus {
             outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow);
-            background: var(--bg-hover);
+            border-color: var(--tesla-red);
+            box-shadow: var(--glow-red);
+            background: var(--bg-secondary);
         }
 
         .search-input::placeholder {
@@ -377,11 +269,12 @@
             font-weight: 400;
         }
 
+        /* Tesla-Style Search Button */
         .search-btn {
             padding: 1.5rem 3rem;
             font-size: 1.1rem;
             font-weight: 700;
-            background: var(--accent);
+            background: var(--tesla-red);
             color: var(--text-primary);
             border: none;
             border-radius: 12px;
@@ -390,21 +283,30 @@
             font-family: 'Inter', sans-serif;
             text-transform: uppercase;
             letter-spacing: 0.08em;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            box-shadow: var(--shadow-medium);
         }
 
         .search-btn:hover {
-            background: var(--accent-hover);
-            box-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow);
+            background: var(--tesla-red-hover);
+            box-shadow: var(--glow-red-intense);
             transform: translateY(-3px);
         }
 
-        .search-btn:active { transform: translateY(-1px); }
-        .search-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .search-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
 
         /* ============================================
            MAIN CONTENT LAYOUT
            ============================================ */
+
         main {
             max-width: 1400px;
             margin: 0 auto;
@@ -417,6 +319,7 @@
         /* ============================================
            FILTERS SIDEBAR - Tesla Control Panel
            ============================================ */
+
         .filters-sidebar {
             position: sticky;
             top: 180px;
@@ -425,14 +328,28 @@
             overflow-y: auto;
         }
 
-        .filters-sidebar::-webkit-scrollbar { width: 8px; }
-        .filters-sidebar::-webkit-scrollbar-track { background: var(--bg-hover); border-radius: 4px; }
-        .filters-sidebar::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
-        .filters-sidebar::-webkit-scrollbar-thumb:hover { background: var(--accent-hover); }
+        /* Custom Scrollbar - Tesla Style */
+        .filters-sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .filters-sidebar::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        .filters-sidebar::-webkit-scrollbar-thumb {
+            background: var(--tesla-red);
+            border-radius: 4px;
+        }
+
+        .filters-sidebar::-webkit-scrollbar-thumb:hover {
+            background: var(--tesla-red-hover);
+        }
 
         .filter-section {
             background: var(--bg-card);
-            border: 2px solid var(--border);
+            border: 1px solid var(--border-medium);
             border-radius: 12px;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
@@ -440,60 +357,60 @@
         }
 
         .filter-section:hover {
-            border-color: var(--accent);
-            box-shadow: 0 0 20px var(--accent-glow);
+            border-color: var(--tesla-red);
+            box-shadow: var(--glow-red);
         }
 
         .filter-title {
             font-weight: 700;
             font-size: 0.85rem;
-            color: var(--accent);
+            color: var(--tesla-red);
             margin-bottom: 1.25rem;
             text-transform: uppercase;
             letter-spacing: 0.1em;
         }
 
-        .filter-help-icon {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: var(--text-muted);
-            color: var(--bg-card);
-            font-size: 0.7rem;
-            text-align: center;
-            line-height: 16px;
-            cursor: help;
-            margin-left: 0.25rem;
-        }
-
-        .year-range { display: flex; gap: 1rem; align-items: center; }
-
-        .year-input, .author-input {
+        /* Filter Inputs - Tesla Style */
+        .author-input, .year-input {
             width: 100%;
             padding: 0.75rem 1rem;
             font-size: 1rem;
-            border: 2px solid var(--border);
+            border: 2px solid var(--border-medium);
             border-radius: 8px;
-            background: var(--bg-hover);
+            background: var(--bg-secondary);
             color: var(--text-primary);
             font-family: 'Inter', sans-serif;
             transition: all 0.3s ease;
         }
 
-        .year-input { flex: 1; text-align: center; font-weight: 600; }
-
-        .year-input:focus, .author-input:focus {
+        .author-input:focus, .year-input:focus {
             outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 10px var(--accent-glow);
+            border-color: var(--tesla-red);
+            box-shadow: 0 0 10px var(--tesla-red-glow);
         }
 
-        .author-input::placeholder { color: var(--text-muted); }
-        .year-separator { color: var(--text-muted); font-weight: 700; }
+        .year-range {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
 
-        .conference-list, .country-list { max-height: 400px; overflow-y: auto; }
-        .country-list { max-height: 300px; }
+        .year-input {
+            flex: 1;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .year-separator {
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        /* Conference List - Tesla Checkboxes */
+        .conference-list, .country-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
 
         .conference-item, .country-item {
             display: flex;
@@ -502,34 +419,43 @@
             padding: 0.75rem 0;
             cursor: pointer;
             transition: all 0.2s;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--border-subtle);
         }
 
         .conference-item:hover, .country-item:hover {
-            color: var(--accent);
+            color: var(--tesla-red);
             transform: translateX(5px);
         }
 
         .conference-checkbox, .country-checkbox {
             width: 20px;
             height: 20px;
-            accent-color: var(--accent);
+            accent-color: var(--tesla-red);
             cursor: pointer;
         }
 
-        .conference-name, .country-name { flex: 1; font-size: 0.95rem; font-weight: 500; }
-        .conference-count, .country-count { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
-        .country-flag { font-size: 1rem; }
+        .conference-name, .country-name {
+            flex: 1;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
 
+        .conference-count, .country-count {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* Clear Filters Button */
         .clear-filters {
             width: 100%;
             padding: 1rem;
             font-size: 0.9rem;
             font-weight: 700;
             background: transparent;
-            border: 2px solid var(--accent);
+            border: 2px solid var(--tesla-red);
             border-radius: 8px;
-            color: var(--accent);
+            color: var(--tesla-red);
             cursor: pointer;
             transition: all 0.3s ease;
             font-family: 'Inter', sans-serif;
@@ -538,16 +464,19 @@
         }
 
         .clear-filters:hover {
-            background: var(--accent);
+            background: var(--tesla-red);
             color: var(--text-primary);
-            box-shadow: 0 0 20px var(--accent-glow);
+            box-shadow: var(--glow-red);
             transform: translateY(-2px);
         }
 
         /* ============================================
            RESULTS SECTION
            ============================================ */
-        .results-section { min-height: 400px; }
+
+        .results-section {
+            min-height: 400px;
+        }
 
         .results-header {
             display: flex;
@@ -555,18 +484,28 @@
             align-items: center;
             margin-bottom: 2rem;
             padding-bottom: 1rem;
-            border-bottom: 2px solid var(--accent);
+            border-bottom: 2px solid var(--tesla-red);
         }
 
-        .results-count { font-size: 1.1rem; color: var(--text-secondary); font-weight: 500; }
-        .results-count strong { color: var(--accent); font-weight: 800; font-size: 1.3rem; }
+        .results-count {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .results-count strong {
+            color: var(--tesla-red);
+            font-weight: 800;
+            font-size: 1.3rem;
+        }
 
         /* ============================================
            PAPER CARDS - Tesla Minimalist Design
            ============================================ */
+
         .paper-card {
             background: var(--bg-card);
-            border: 2px solid var(--border);
+            border: 2px solid var(--border-medium);
             border-radius: 12px;
             padding: 2rem;
             margin-bottom: 1.5rem;
@@ -582,19 +521,21 @@
             left: 0;
             width: 4px;
             height: 100%;
-            background: var(--accent);
+            background: var(--tesla-red);
             transform: scaleY(0);
             transition: transform 0.3s ease;
         }
 
         .paper-card:hover {
-            border-color: var(--accent);
-            background: var(--bg-hover);
-            box-shadow: 0 0 20px var(--accent-glow);
+            border-color: var(--tesla-red);
+            background: var(--bg-card-hover);
+            box-shadow: var(--glow-red);
             transform: translateX(10px);
         }
 
-        .paper-card:hover::before { transform: scaleY(1); }
+        .paper-card:hover::before {
+            transform: scaleY(1);
+        }
 
         .paper-header {
             display: flex;
@@ -612,8 +553,42 @@
             flex: 1;
         }
 
-        .paper-title a { color: inherit; text-decoration: none; transition: color 0.2s; }
-        .paper-title a:hover { color: var(--accent); }
+        .paper-title a {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .paper-title a:hover {
+            color: var(--tesla-red);
+        }
+
+        .paper-badges {
+            display: flex;
+            gap: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .badge {
+            padding: 0.4rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-conference {
+            background: var(--tesla-red);
+            color: var(--text-primary);
+            border: 2px solid var(--tesla-red);
+        }
+
+        .badge-year {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 2px solid var(--border-medium);
+        }
 
         .paper-meta {
             display: flex;
@@ -637,152 +612,31 @@
             border-bottom: 1px dotted var(--text-muted);
         }
 
-        .author-name:hover { color: var(--accent); border-bottom-color: var(--accent); }
+        .author-name:hover {
+            color: var(--tesla-red);
+            border-bottom-color: var(--tesla-red);
+        }
 
         .author-name.has-profile-links {
             font-weight: 700;
             color: var(--text-primary);
-            border-bottom: 2px solid var(--accent);
-        }
-
-        .author-name.has-profile-links:hover { color: var(--accent-hover); }
-
-        /* Author Popover */
-        .author-popover {
-            position: absolute;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--bg-popover);
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 1rem 1.25rem;
-            min-width: 220px;
-            max-width: 320px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.2s ease;
-            pointer-events: none;
-        }
-
-        .author-popover::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 8px solid transparent;
-            border-top-color: var(--border);
-        }
-
-        .author-popover.active { opacity: 1; visibility: visible; pointer-events: auto; }
-
-        .popover-name { font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.95rem; }
-        .popover-affiliation { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem; }
-        .popover-country-badge {
-            display: inline-block;
-            background: rgba(204, 0, 0, 0.15);
-            color: var(--accent);
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        .popover-affiliation-text { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.3rem; }
-        .popover-links { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-
-        .popover-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            padding: 0.35rem 0.6rem;
-            font-size: 0.75rem;
-            font-weight: 500;
-            border-radius: 6px;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .popover-link:hover { transform: translateY(-1px); filter: brightness(1.2); }
-        .popover-link.homepage { background: rgba(16, 185, 129, 0.15); color: var(--link-homepage); }
-        .popover-link.scholar { background: rgba(66, 133, 244, 0.15); color: var(--link-scholar); }
-        .popover-link.linkedin { background: rgba(10, 102, 194, 0.15); color: var(--link-linkedin); }
-        .popover-link.orcid { background: rgba(166, 206, 57, 0.15); color: var(--link-orcid); }
-        .popover-link.dblp { background: rgba(0, 79, 159, 0.15); color: var(--link-dblp); }
-
-        .paper-badges { display: flex; gap: 0.75rem; flex-shrink: 0; }
-
-        .badge {
-            padding: 0.4rem 1rem;
-            font-size: 0.75rem;
-            font-weight: 700;
-            border-radius: 20px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .badge-conference {
-            background: var(--accent);
-            color: var(--text-primary);
-            border: 2px solid var(--accent);
-        }
-
-        .badge-year {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 2px solid var(--border);
-        }
-
-        .badge-country {
-            background: rgba(204, 0, 0, 0.15);
-            color: var(--accent);
-            font-size: 0.8rem;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            font-weight: 600;
-            border: 1px solid rgba(204, 0, 0, 0.3);
-        }
-
-        .badge-country:hover { background: rgba(204, 0, 0, 0.25); }
-        .badge-country.clickable { cursor: pointer; transition: all 0.2s; }
-        .badge-country.clickable:hover { transform: translateY(-1px); box-shadow: 0 2px 8px var(--accent-glow); }
-
-        .collaboration-badge {
-            display: inline-block;
-            background: rgba(204, 0, 0, 0.15);
-            color: var(--accent);
-            font-size: 0.75rem;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-            border: 1px solid rgba(204, 0, 0, 0.3);
+            border-bottom: 2px solid var(--tesla-red);
         }
 
         .paper-abstract {
             font-size: 1rem;
             color: var(--text-secondary);
             line-height: 1.8;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
             margin-top: 1rem;
         }
 
-        .paper-abstract.expanded { -webkit-line-clamp: unset; }
-
-        .read-more { color: var(--accent); cursor: pointer; font-size: 0.85rem; margin-top: 0.5rem; display: inline-block; font-weight: 600; }
-        .read-more:hover { text-decoration: underline; }
-
         /* Paper Links */
-        .paper-links { display: flex; gap: 0.75rem; margin-top: 1.25rem; flex-wrap: wrap; }
+        .paper-links {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+            flex-wrap: wrap;
+        }
 
         .paper-link {
             display: inline-flex;
@@ -792,8 +646,8 @@
             font-size: 0.85rem;
             font-weight: 600;
             color: var(--text-secondary);
-            background: var(--bg-hover);
-            border: 2px solid var(--border);
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-medium);
             border-radius: 20px;
             text-decoration: none;
             transition: all 0.3s ease;
@@ -802,15 +656,16 @@
         }
 
         .paper-link:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            box-shadow: 0 0 10px var(--accent-glow);
+            border-color: var(--tesla-red);
+            color: var(--tesla-red);
+            box-shadow: 0 0 10px var(--tesla-red-glow);
             transform: translateY(-2px);
         }
 
         /* ============================================
            AI CHAT ASSISTANT - Tesla Floating Bot
            ============================================ */
+
         .ai-chat-button {
             position: fixed;
             bottom: 2.5rem;
@@ -818,12 +673,12 @@
             width: 70px;
             height: 70px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-            border: 3px solid var(--accent);
+            background: linear-gradient(135deg, var(--tesla-red), var(--tesla-red-hover));
+            border: 3px solid var(--tesla-red);
             color: white;
             font-size: 2rem;
             cursor: pointer;
-            box-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow);
+            box-shadow: var(--glow-red-intense);
             transition: all 0.3s ease;
             z-index: 1000;
             display: flex;
@@ -833,7 +688,7 @@
 
         .ai-chat-button:hover {
             transform: scale(1.15) rotate(5deg);
-            box-shadow: 0 0 30px var(--accent-glow), 0 0 60px var(--accent-glow);
+            box-shadow: 0 0 30px var(--tesla-red-glow-intense), 0 0 60px var(--tesla-red-glow);
         }
 
         .ai-chat-modal {
@@ -846,28 +701,30 @@
             height: 650px;
             max-height: calc(100vh - 180px);
             background: var(--bg-card);
-            border: 2px solid var(--accent);
+            border: 2px solid var(--tesla-red);
             border-radius: 16px;
-            box-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow);
+            box-shadow: var(--glow-red-intense);
             z-index: 1001;
             flex-direction: column;
         }
 
-        .ai-chat-modal.active { display: flex; }
+        .ai-chat-modal.active {
+            display: flex;
+        }
 
         .ai-chat-header {
             padding: 1.5rem;
-            border-bottom: 2px solid var(--accent);
+            border-bottom: 2px solid var(--tesla-red);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-hover) 100%);
+            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
         }
 
         .ai-chat-title {
             font-weight: 800;
             font-size: 1.2rem;
-            color: var(--accent);
+            color: var(--tesla-red);
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
@@ -881,7 +738,10 @@
             transition: all 0.2s;
         }
 
-        .ai-chat-close:hover { color: var(--accent); transform: rotate(90deg); }
+        .ai-chat-close:hover {
+            color: var(--tesla-red);
+            transform: rotate(90deg);
+        }
 
         .ai-chat-messages {
             flex: 1;
@@ -890,7 +750,7 @@
             display: flex;
             flex-direction: column;
             gap: 1.25rem;
-            background: var(--bg-hover);
+            background: var(--bg-secondary);
         }
 
         .ai-message {
@@ -903,37 +763,30 @@
 
         .ai-message.user {
             align-self: flex-end;
-            background: var(--accent);
+            background: var(--tesla-red);
             color: var(--text-primary);
-            border: 2px solid var(--accent);
+            border: 2px solid var(--tesla-red);
         }
 
         .ai-message.assistant {
             align-self: flex-start;
             background: var(--bg-card);
             color: var(--text-primary);
-            border: 2px solid var(--border);
-        }
-
-        .ai-message.error {
-            align-self: flex-start;
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            border: 2px solid rgba(239, 68, 68, 0.3);
+            border: 2px solid var(--border-medium);
         }
 
         .ai-chat-input-container {
             padding: 1.5rem;
-            border-top: 2px solid var(--accent);
+            border-top: 2px solid var(--tesla-red);
             background: var(--bg-card);
         }
 
         .ai-chat-input {
             width: 100%;
             padding: 1rem 1.25rem;
-            border: 2px solid var(--border);
+            border: 2px solid var(--border-medium);
             border-radius: 8px;
-            background: var(--bg-hover);
+            background: var(--bg-secondary);
             color: var(--text-primary);
             font-family: 'Inter', sans-serif;
             resize: none;
@@ -942,62 +795,343 @@
 
         .ai-chat-input:focus {
             outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 10px var(--accent-glow);
+            border-color: var(--tesla-red);
+            box-shadow: 0 0 10px var(--tesla-red-glow);
         }
 
-        .ai-typing {
-            padding: 0.75rem 1rem;
-            border-radius: 12px;
-            background: var(--bg-hover);
-            color: var(--text-secondary);
-            align-self: flex-start;
-            font-style: italic;
-        }
+        /* ============================================
+           LOADING & STATES
+           ============================================ */
 
-        /* Agent Settings Modal */
-        .agent-settings-tabs {
+        .loading {
             display: flex;
-            gap: 0;
-            border-bottom: 2px solid var(--border);
-            margin-bottom: 1.25rem;
-        }
-
-        .agent-tab-btn {
-            padding: 0.75rem 1.25rem;
-            background: transparent;
-            border: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5rem 2rem;
             color: var(--text-secondary);
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 600;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s ease;
         }
 
-        .agent-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-        .agent-tab-btn:hover { color: var(--text-primary); }
-
-        .agent-tab-content { display: none; }
-        .agent-tab-content.active { display: block; }
-
-        .exclusion-section {
-            margin-bottom: 1.25rem;
-            padding: 1rem;
-            background: var(--bg-hover);
-            border-radius: 8px;
-            border: 1px solid var(--border);
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-medium);
+            border-top-color: var(--tesla-red);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--glow-red);
         }
 
-        .exclusion-section h4 {
-            font-size: 0.85rem;
-            color: var(--accent);
-            margin-bottom: 0.5rem;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state, .error-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.3;
+        }
+
+        .empty-state h3, .error-state h3 {
+            font-size: 1.5rem;
+            color: var(--tesla-red);
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        /* ============================================
+           PAGINATION - Tesla Style
+           ============================================ */
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+
+        .pagination button {
+            padding: 0.75rem 1.75rem;
+            font-size: 1rem;
             font-weight: 700;
+            background: var(--bg-card);
+            border: 2px solid var(--border-medium);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
             text-transform: uppercase;
             letter-spacing: 0.03em;
         }
+
+        .pagination button:hover:not(:disabled) {
+            border-color: var(--tesla-red);
+            color: var(--tesla-red);
+            box-shadow: var(--glow-red);
+            transform: translateY(-2px);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* ============================================
+           MODAL OVERLAY
+           ============================================ */
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 2px solid var(--tesla-red);
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--glow-red-intense);
+            transform: translateY(30px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--tesla-red);
+            text-transform: uppercase;
+        }
+
+        .modal-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            font-size: 1rem;
+            border: 2px solid var(--border-medium);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--tesla-red);
+            box-shadow: 0 0 10px var(--tesla-red-glow);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .modal-btn-primary {
+            background: var(--tesla-red);
+            border: 2px solid var(--tesla-red);
+            color: var(--text-primary);
+        }
+
+        .modal-btn-primary:hover {
+            background: var(--tesla-red-hover);
+            box-shadow: var(--glow-red-intense);
+            transform: translateY(-2px);
+        }
+
+        .modal-btn-secondary {
+            background: transparent;
+            border: 2px solid var(--border-medium);
+            color: var(--text-secondary);
+        }
+
+        .modal-btn-secondary:hover {
+            border-color: var(--tesla-red);
+            color: var(--tesla-red);
+        }
+
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+
+        @media (max-width: 1024px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-sidebar {
+                position: static;
+                max-height: none;
+            }
+
+            .header-content,
+            .search-section,
+            main {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .logo-section h1 {
+                font-size: 2rem;
+            }
+
+            .header-top {
+                flex-direction: column;
+                gap: 1.5rem;
+                align-items: flex-start;
+            }
+
+            .nav-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .search-btn {
+                width: 100%;
+            }
+
+            .stats-bar {
+                flex-wrap: wrap;
+                gap: 1.5rem;
+            }
+
+            .ai-chat-modal {
+                width: calc(100vw - 2rem);
+                right: 1rem;
+                bottom: 100px;
+            }
+
+            .ai-chat-button {
+                right: 1.5rem;
+                bottom: 1.5rem;
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content,
+            .search-section,
+            main {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .paper-card {
+                padding: 1.5rem;
+            }
+
+            .paper-title {
+                font-size: 1.1rem;
+            }
+
+            .badge {
+                font-size: 0.7rem;
+                padding: 0.3rem 0.8rem;
+            }
+        }
+
+        /* ============================================
+           UTILITY ANIMATIONS
+           ============================================ */
+
+        @keyframes pulse-red {
+            0%, 100% {
+                box-shadow: 0 0 20px var(--tesla-red-glow);
+            }
+            50% {
+                box-shadow: 0 0 40px var(--tesla-red-glow-intense);
+            }
+        }
+
+        .pulse-animation {
+            animation: pulse-red 2s ease-in-out infinite;
+        }
+
+        /* ============================================
+           EXCLUSION TAGS STYLING
+           ============================================ */
 
         .exclusion-tags {
             display: flex;
@@ -1009,14 +1143,20 @@
             transition: max-height 0.3s ease;
         }
 
-        .exclusion-tags.collapsed { max-height: 60px; overflow: hidden; position: relative; }
+        .exclusion-tags.collapsed {
+            max-height: 60px;
+            overflow: hidden;
+            position: relative;
+        }
 
         .exclusion-tags.collapsed::after {
             content: '';
             position: absolute;
-            bottom: 0; left: 0; right: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
             height: 30px;
-            background: linear-gradient(to bottom, transparent, var(--bg-hover));
+            background: linear-gradient(to bottom, transparent, var(--bg-card));
             pointer-events: none;
         }
 
@@ -1024,18 +1164,29 @@
             margin-top: 0.5rem;
             padding: 0.4rem 0.8rem;
             font-size: 0.75rem;
-            color: var(--accent);
+            color: var(--tesla-red);
             background: transparent;
-            border: 1px solid var(--accent);
+            border: 1px solid var(--tesla-red);
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
         }
 
-        .exclusion-toggle:hover { background: rgba(204, 0, 0, 0.1); }
+        .exclusion-toggle:hover {
+            background: rgba(204, 0, 0, 0.1);
+            box-shadow: 0 0 10px var(--tesla-red-glow);
+        }
 
-        .exclusion-count { font-size: 0.75rem; color: var(--text-muted); margin-left: 0.5rem; font-style: italic; }
+        .exclusion-count {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-left: 0.5rem;
+            font-style: italic;
+        }
 
         .exclusion-tag {
             display: inline-flex;
@@ -1047,443 +1198,85 @@
             border-radius: 16px;
             font-size: 0.8rem;
             color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
         }
 
-        .exclusion-tag .remove-tag { cursor: pointer; color: var(--text-muted); font-size: 1rem; line-height: 1; transition: color 0.2s; font-weight: 700; }
-        .exclusion-tag .remove-tag:hover { color: var(--accent); }
+        .exclusion-tag .remove-tag {
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1;
+            transition: color 0.2s;
+            font-weight: 700;
+        }
 
-        .exclusion-add { display: flex; gap: 0.4rem; margin-top: 0.5rem; }
+        .exclusion-tag .remove-tag:hover {
+            color: var(--tesla-red);
+        }
+
+        .exclusion-add {
+            display: flex;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+        }
 
         .exclusion-add input {
             flex: 1;
-            padding: 0.5rem 0.8rem;
+            padding: 0.6rem 0.8rem;
             font-size: 0.85rem;
-            border: 2px solid var(--border);
+            border: 2px solid var(--border-medium);
             border-radius: 8px;
-            background: var(--bg-dark);
+            background: var(--bg-secondary);
             color: var(--text-primary);
             font-family: 'Inter', sans-serif;
             transition: all 0.2s;
         }
 
-        .exclusion-add input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+        .exclusion-add input:focus {
+            outline: none;
+            border-color: var(--tesla-red);
+            box-shadow: 0 0 10px var(--tesla-red-glow);
+        }
 
         .exclusion-add button {
-            padding: 0.5rem 1rem;
+            padding: 0.6rem 1.2rem;
             font-size: 0.85rem;
-            border: none;
-            background: var(--accent);
+            font-weight: 700;
             color: var(--text-primary);
+            background: var(--tesla-red);
+            border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-weight: 700;
             transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
         }
 
-        .exclusion-add button:hover { background: var(--accent-hover); box-shadow: 0 0 10px var(--accent-glow); }
-
-        .defaults-grid { display: grid; gap: 1rem; }
-
-        .defaults-grid .form-group label {
-            display: block;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.4rem;
-            font-weight: 600;
+        .exclusion-add button:hover {
+            background: var(--tesla-red-hover);
+            box-shadow: var(--glow-red);
         }
 
-        .defaults-grid .form-group input,
-        .defaults-grid .form-group select {
-            width: 100%;
-            padding: 0.6rem 0.75rem;
-            border: 2px solid var(--border);
+        .exclusion-section {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
             border-radius: 8px;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
+            border: 1px solid var(--border-medium);
+        }
+
+        .exclusion-section h4 {
             font-size: 0.9rem;
-        }
-
-        .defaults-grid .form-group input:focus,
-        .defaults-grid .form-group select:focus { outline: none; border-color: var(--accent); }
-
-        .conference-checkboxes { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-        .conference-checkboxes label { display: flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; color: var(--text-primary); cursor: pointer; }
-
-        .agent-instructions-textarea {
-            width: 100%;
-            min-height: 120px;
-            padding: 0.75rem;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
-            resize: vertical;
-        }
-
-        .agent-instructions-textarea:focus { outline: none; border-color: var(--accent); }
-
-        .history-list { max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; }
-
-        .history-entry { padding: 0.6rem 0.75rem; border-radius: 8px; font-size: 0.85rem; }
-        .history-entry.user { background: rgba(204, 0, 0, 0.15); align-self: flex-end; max-width: 85%; }
-        .history-entry.assistant { background: var(--bg-hover); align-self: flex-start; max-width: 85%; }
-        .history-entry .history-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; }
-        .history-empty { text-align: center; color: var(--text-muted); padding: 2rem; font-style: italic; }
-
-        .ai-settings-gear {
-            background: none; border: none; color: var(--text-secondary); font-size: 1.1rem;
-            cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center;
-            justify-content: center; border-radius: 4px; transition: all 0.2s;
-        }
-
-        .ai-settings-gear:hover { background: var(--bg-hover); color: var(--text-primary); }
-
-        .exclude-author-btn {
-            padding: 0.2rem 0.5rem; font-size: 0.7rem; border: 1px solid rgba(239, 68, 68, 0.4);
-            background: transparent; color: #ef4444; border-radius: 4px; cursor: pointer;
-            transition: all 0.2s; margin-left: 0.5rem;
-        }
-
-        .exclude-author-btn:hover { background: rgba(239, 68, 68, 0.15); }
-
-        /* ============================================
-           LOADING & STATES
-           ============================================ */
-        .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5rem 2rem; color: var(--text-secondary); }
-
-        .spinner {
-            width: 50px; height: 50px; border: 4px solid var(--border);
-            border-top-color: var(--accent); border-radius: 50%;
-            animation: spin 0.8s linear infinite; margin-bottom: 1.5rem;
-            box-shadow: 0 0 20px var(--accent-glow);
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .empty-state, .error-state { text-align: center; padding: 5rem 2rem; color: var(--text-secondary); }
-        .empty-icon { font-size: 5rem; margin-bottom: 1.5rem; opacity: 0.3; }
-        .empty-state h3, .error-state h3 { font-size: 1.5rem; color: var(--accent); margin-bottom: 1rem; font-weight: 800; }
-
-        .initial-state { text-align: center; padding: 4rem 2rem; }
-        .initial-state h3 {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.5rem;
             font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
-
-        .search-tips {
-            text-align: left; max-width: 400px; margin: 2rem auto 0;
-            background: var(--bg-card); border: 2px solid var(--border);
-            border-radius: 12px; padding: 1.25rem;
-        }
-
-        .search-tips h4 { font-size: 0.85rem; color: var(--accent); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
-        .search-tips ul { list-style: none; font-size: 0.9rem; color: var(--text-secondary); }
-        .search-tips li { padding: 0.4rem 0; }
-        .search-tips code { background: var(--bg-dark); padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.85rem; color: var(--accent); }
-
-        /* ============================================
-           PAGINATION - Tesla Style
-           ============================================ */
-        .pagination { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 3rem; }
-
-        .pagination button {
-            padding: 0.75rem 1.75rem; font-size: 1rem; font-weight: 700;
-            background: var(--bg-card); border: 2px solid var(--border); border-radius: 8px;
-            color: var(--text-primary); cursor: pointer; transition: all 0.3s ease;
-            font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.03em;
-        }
-
-        .pagination button:hover:not(:disabled) {
-            border-color: var(--accent); color: var(--accent);
-            box-shadow: 0 0 20px var(--accent-glow); transform: translateY(-2px);
-        }
-
-        .pagination button:disabled { opacity: 0.3; cursor: not-allowed; }
-        .page-info { padding: 0.75rem 1.5rem; color: var(--text-secondary); font-weight: 600; }
-
-        /* ============================================
-           MODALS - Tesla Style
-           ============================================ */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.9); display: flex; align-items: center;
-            justify-content: center; z-index: 2000; opacity: 0; visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .modal-overlay.active { opacity: 1; visibility: visible; }
-
-        .modal {
-            background: var(--bg-card);
-            border: 2px solid var(--accent);
-            border-radius: 16px;
-            padding: 2.5rem;
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow);
-            transform: translateY(30px);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.active .modal { transform: translateY(0); }
-
-        .modal-title {
-            font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;
-            color: var(--accent); text-transform: uppercase;
-        }
-
-        .modal-subtitle { font-size: 1rem; color: var(--text-secondary); margin-bottom: 2rem; }
-
-        .modal-form { display: flex; flex-direction: column; gap: 1rem; }
-
-        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-
-        .form-group label {
-            font-size: 0.9rem; color: var(--text-secondary); font-weight: 600;
-            text-transform: uppercase; letter-spacing: 0.03em;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            padding: 1rem 1.25rem; font-size: 1rem;
-            border: 2px solid var(--border); border-radius: 8px;
-            background: var(--bg-hover); color: var(--text-primary);
-            font-family: 'Inter', sans-serif; transition: all 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none; border-color: var(--accent);
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
-
-        .modal-actions { display: flex; gap: 1rem; margin-top: 2rem; }
-
-        .modal-btn {
-            flex: 1; padding: 1rem 1.5rem; font-size: 1rem; font-weight: 700;
-            border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
-            font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.05em;
-        }
-
-        .modal-btn-primary {
-            background: var(--accent); border: 2px solid var(--accent); color: var(--text-primary);
-        }
-
-        .modal-btn-primary:hover {
-            background: var(--accent-hover);
-            box-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow);
-            transform: translateY(-2px);
-        }
-
-        .modal-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .modal-btn-secondary {
-            background: transparent; border: 2px solid var(--border); color: var(--text-secondary);
-        }
-
-        .modal-btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
-
-        .modal-success { text-align: center; padding: 1rem 0; }
-        .modal-success-icon { font-size: 3rem; margin-bottom: 1rem; }
-
-        .suggest-link-btn {
-            width: 100%; margin-top: 0.5rem; padding: 0.5rem; font-size: 0.75rem;
-            background: transparent; border: 1px dashed var(--border); border-radius: 6px;
-            color: var(--text-muted); cursor: pointer; transition: all 0.2s;
-        }
-        .suggest-link-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-        /* Author Profile Page */
-        .author-profile { display: none; }
-        .author-profile.active { display: block; }
-
-        .back-btn {
-            display: inline-flex; align-items: center; gap: 0.5rem;
-            padding: 0.6rem 1.5rem; font-size: 0.9rem; background: transparent;
-            border: 2px solid var(--border); border-radius: 50px; color: var(--text-secondary);
-            cursor: pointer; margin-bottom: 1.5rem; transition: all 0.3s ease;
-            font-family: 'Inter', sans-serif; font-weight: 600;
-        }
-
-        .back-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
-
-        .profile-header {
-            background: var(--bg-card); border: 2px solid var(--border);
-            border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem;
-        }
-
-        .profile-name {
-            font-family: 'Inter', sans-serif; font-size: 2rem; font-weight: 800;
-            color: var(--text-primary); margin-bottom: 0.5rem;
-        }
-
-        .profile-affiliation { color: var(--text-secondary); font-size: 1rem; margin-bottom: 1rem; }
-
-        .profile-links { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
-
-        .profile-link {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: 600;
-            border-radius: 20px; text-decoration: none; transition: all 0.2s;
-        }
-
-        .profile-link:hover { transform: translateY(-2px); filter: brightness(1.2); }
-        .profile-link.homepage { background: rgba(16, 185, 129, 0.15); color: var(--link-homepage); }
-        .profile-link.scholar { background: rgba(66, 133, 244, 0.15); color: var(--link-scholar); }
-        .profile-link.dblp { background: rgba(0, 79, 159, 0.15); color: var(--link-dblp); }
-        .profile-link.linkedin { background: rgba(10, 102, 194, 0.15); color: var(--link-linkedin); }
-        .profile-link.orcid { background: rgba(166, 206, 57, 0.15); color: var(--link-orcid); }
-
-        .profile-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; }
-
-        .stat-card {
-            background: var(--bg-dark); border: 2px solid var(--border);
-            border-radius: 12px; padding: 1rem; text-align: center;
-            transition: all 0.3s ease;
-        }
-        .stat-card:hover { border-color: var(--accent); }
-        .stat-card .stat-number { font-size: 1.75rem; font-weight: 800; color: var(--accent); }
-        .stat-card .stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-
-        .profile-section {
-            background: var(--bg-card); border: 2px solid var(--border);
-            border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;
-        }
-
-        .section-title {
-            font-size: 1rem; font-weight: 700; color: var(--text-primary);
-            margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;
-            text-transform: uppercase; letter-spacing: 0.03em;
-        }
-
-        .export-btn {
-            padding: 0.6rem 1.5rem; font-size: 0.8rem; background: var(--accent);
-            border: none; border-radius: 50px; color: white; cursor: pointer;
-            font-family: 'Inter', sans-serif; font-weight: 700; transition: all 0.3s ease;
-            text-transform: uppercase; letter-spacing: 0.03em;
-        }
-        .export-btn:hover { background: var(--accent-hover); box-shadow: 0 0 10px var(--accent-glow); }
-
-        .coauthor-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-
-        .coauthor-tag {
-            padding: 0.4rem 1rem; background: var(--bg-dark); border: 2px solid var(--border);
-            border-radius: 20px; font-size: 0.85rem; color: var(--text-secondary);
-            cursor: pointer; transition: all 0.3s ease; font-weight: 500;
-        }
-        .coauthor-tag:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
-        .coauthor-tag .count { color: var(--text-muted); font-size: 0.75rem; margin-left: 0.3rem; }
-
-        .conference-breakdown { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-
-        .conference-tag {
-            display: flex; align-items: center; gap: 0.5rem;
-            padding: 0.5rem 1rem; background: var(--conference-bg);
-            border: 2px solid var(--accent); border-radius: 20px;
-        }
-        .conference-tag .conf-name { color: var(--accent); font-weight: 700; font-size: 0.85rem; }
-        .conference-tag .conf-count { color: var(--text-muted); font-size: 0.8rem; }
-
-        .profile-papers-list .paper-card { padding: 1rem 1.25rem; }
-
-        .paper-card .first-author-badge {
-            display: inline-block; padding: 0.2rem 0.5rem;
-            background: rgba(74, 222, 128, 0.15); color: var(--success);
-            font-size: 0.7rem; font-weight: 700; border-radius: 4px;
-            margin-left: 0.5rem; text-transform: uppercase;
-        }
-
-        /* Author Notes */
-        .note-count-badge {
-            display: inline-block; padding: 0.25rem 0.6rem;
-            background: rgba(74, 222, 128, 0.15); color: var(--success);
-            font-size: 0.75rem; font-weight: 700; border-radius: 12px; margin-left: 0.5rem;
-        }
-
-        .add-note-btn {
-            display: inline-flex; align-items: center; gap: 0.4rem;
-            padding: 0.5rem 1rem; background: transparent; border: 2px solid var(--border);
-            border-radius: 50px; color: var(--text-secondary); font-size: 0.85rem;
-            cursor: pointer; transition: all 0.3s ease; font-family: 'Inter', sans-serif;
-            margin-left: auto; font-weight: 600;
-        }
-        .add-note-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-        #profile-notes-list { display: flex; flex-direction: column; gap: 1rem; }
-
-        .note-card {
-            background: var(--bg-card); border: 2px solid var(--border);
-            border-left: 4px solid var(--accent); border-radius: 12px;
-            padding: 1rem 1.25rem; transition: all 0.3s ease;
-        }
-        .note-card:hover { border-left-color: var(--accent-hover); box-shadow: 0 0 10px var(--accent-glow); }
-
-        .note-content { color: var(--text-primary); line-height: 1.6; font-size: 0.95rem; margin-bottom: 0.75rem; }
-        .note-meta { display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.8rem; }
-        .notes-empty { text-align: center; padding: 2rem; color: var(--text-muted); font-style: italic; }
-
-        /* Notes in Popover */
-        .popover-notes-preview { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
-        .popover-notes-title { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
-        .popover-note-item { background: rgba(0, 0, 0, 0.02); padding: 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; font-size: 0.85rem; line-height: 1.4; color: var(--text-secondary); }
-        .popover-notes-more { font-size: 0.75rem; color: var(--accent); text-align: center; margin-top: 0.5rem; cursor: pointer; }
-        .popover-notes-more:hover { text-decoration: underline; }
-
-        .char-counter { font-size: 0.75rem; color: var(--text-muted); text-align: right; margin-top: 0.25rem; }
-        .char-counter.warning { color: #f59e0b; }
-        .char-counter.danger { color: #ef4444; }
-
-        /* ============================================
-           RESPONSIVE DESIGN
-           ============================================ */
-        @media (max-width: 1024px) {
-            main { grid-template-columns: 1fr; }
-            .filters-sidebar { position: static; max-height: none; }
-            .header-content, .search-section, main { padding-left: 2rem; padding-right: 2rem; }
-        }
-
-        @media (max-width: 768px) {
-            h1 { font-size: 2rem; }
-            .header-top { flex-direction: column; gap: 1.5rem; align-items: flex-start; }
-            .search-container { flex-direction: column; }
-            .search-btn { width: 100%; }
-            .stats-bar { flex-wrap: wrap; gap: 1.5rem; }
-            .ai-chat-modal { width: calc(100vw - 2rem); right: 1rem; bottom: 100px; }
-            .ai-chat-button { right: 1.5rem; bottom: 1.5rem; width: 60px; height: 60px; font-size: 1.5rem; }
-            .author-popover { position: fixed; bottom: auto; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-            .author-popover::after { display: none; }
-        }
-
-        @media (max-width: 480px) {
-            .header-content, .search-section, main { padding-left: 1rem; padding-right: 1rem; }
-            .paper-card { padding: 1.5rem; }
-            .paper-title { font-size: 1.1rem; }
-            .badge { font-size: 0.7rem; padding: 0.3rem 0.8rem; }
-            .paper-meta { flex-direction: column; }
-        }
-
-        /* ============================================
-           UTILITY ANIMATIONS
-           ============================================ */
-        @keyframes pulse-red {
-            0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
-            50% { box-shadow: 0 0 40px var(--accent-glow); }
-        }
-
-        .pulse-animation { animation: pulse-red 2s ease-in-out infinite; }
     </style>
 </head>
+
 <body>
     <header>
         <div class="header-content">
@@ -1746,7 +1539,7 @@
     </div>
 
     <!-- Add to Campaign Modal -->
-    <div class="modal-overlay" id="campaign-select-modal">
+    <div class="modal-overlay" id="campaign-select-modal" style="display: none;">
         <div class="modal" style="max-width: 450px;">
             <h2 class="modal-title">📋 Add to Campaign</h2>
             <p class="modal-subtitle" id="campaign-select-author-name"></p>
@@ -2094,11 +1887,7 @@
                 document.getElementById('current-username').textContent = currentUser.username;
 
                 if (currentUser.role === 'admin') {
-                    document.getElementById('admin-btn').style.display = 'inline-block';
-                    document.getElementById('current-username').style.display = 'none';
-                } else {
-                    document.getElementById('admin-btn').style.display = 'none';
-                    document.getElementById('current-username').style.display = 'inline';
+                    document.getElementById('admin-btn').style.display = 'block';
                 }
 
                 // Show gear icon in AI chat header
@@ -2453,7 +2242,7 @@
         function renderExclusionTags(category, values) {
             const container = document.getElementById(`excluded-${category}-tags`);
             const toggleBtn = document.getElementById(`toggle-${category}`);
-            const threshold = 5;
+            const threshold = 3;
 
             if (values.length === 0) {
                 container.innerHTML = '<span style="font-size: 0.8rem; color: var(--text-muted); font-style: italic;">None</span>';
@@ -3033,42 +2822,11 @@
             // Toggle this popover
             const popover = element.querySelector('.author-popover');
             const isOpening = !popover.classList.contains('active');
-
-            // Reset any previous repositioning
-            popover.style.bottom = '';
-            popover.style.top = '';
-            popover.style.left = '';
-            popover.style.transform = '';
-
             popover.classList.toggle('active');
 
-            // Reposition if overflowing viewport
+            // Load notes when opening popover
             if (isOpening) {
                 loadNotesForPopover(authorName, index);
-                requestAnimationFrame(() => repositionPopover(popover));
-            }
-        }
-
-        function repositionPopover(popover) {
-            const rect = popover.getBoundingClientRect();
-            const pad = 8;
-
-            // If overflowing top, flip to below the author name
-            if (rect.top < pad) {
-                popover.style.bottom = 'auto';
-                popover.style.top = 'calc(100% + 8px)';
-            }
-
-            // If overflowing right edge
-            if (rect.right > window.innerWidth - pad) {
-                const overflow = rect.right - window.innerWidth + pad;
-                popover.style.left = `calc(50% - ${overflow}px)`;
-            }
-
-            // If overflowing left edge
-            if (rect.left < pad) {
-                const overflow = pad - rect.left;
-                popover.style.left = `calc(50% + ${overflow}px)`;
             }
         }
 
@@ -3334,7 +3092,7 @@
             pendingCampaignCandidate = authorData;
 
             document.getElementById('campaign-select-author-name').textContent = `Adding: ${authorData.name}`;
-            document.getElementById('campaign-select-modal').classList.add('active');
+            document.getElementById('campaign-select-modal').style.display = 'flex';
 
             // Fetch campaigns
             const listEl = document.getElementById('campaign-select-list');
@@ -3402,7 +3160,7 @@
         }
 
         function closeCampaignSelectModal() {
-            document.getElementById('campaign-select-modal').classList.remove('active');
+            document.getElementById('campaign-select-modal').style.display = 'none';
             pendingCampaignCandidate = null;
         }
 

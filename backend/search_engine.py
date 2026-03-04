@@ -224,8 +224,17 @@ class PaperSearchEngine:
             return
 
         print(f"Loading papers from {filepath}...")
-        with open(filepath, "r", encoding="utf-8") as f:
-            self.papers = json.load(f)
+        import gc
+        gc.collect()  # Free memory before loading
+
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                self.papers = json.load(f)
+        except MemoryError:
+            print("[ERROR] Not enough memory to load papers.json")
+            print("  Try closing other applications or increasing available RAM")
+            print("  You can also try splitting the papers.json file into smaller chunks")
+            raise
 
         # Build indexes
         for paper in self.papers:

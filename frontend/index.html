@@ -591,7 +591,6 @@
             border-color: var(--accent);
             background: var(--bg-hover);
             box-shadow: 0 0 20px var(--accent-glow);
-            transform: translateX(10px);
         }
 
         .paper-card:hover::before { transform: scaleY(1); }
@@ -649,10 +648,7 @@
 
         /* Author Popover */
         .author-popover {
-            position: absolute;
-            bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
+            position: fixed;
             background: var(--bg-popover);
             border: 2px solid var(--border);
             border-radius: 12px;
@@ -663,18 +659,8 @@
             z-index: 1000;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.2s ease;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
             pointer-events: none;
-        }
-
-        .author-popover::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 8px solid transparent;
-            border-top-color: var(--border);
         }
 
         .author-popover.active { opacity: 1; visibility: visible; pointer-events: auto; }
@@ -1461,8 +1447,7 @@
             .stats-bar { flex-wrap: wrap; gap: 1.5rem; }
             .ai-chat-modal { width: calc(100vw - 2rem); right: 1rem; bottom: 100px; }
             .ai-chat-button { right: 1.5rem; bottom: 1.5rem; width: 60px; height: 60px; font-size: 1.5rem; }
-            .author-popover { position: fixed; bottom: auto; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-            .author-popover::after { display: none; }
+            .author-popover { top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; }
         }
 
         @media (max-width: 480px) {
@@ -3033,43 +3018,46 @@
             // Toggle this popover
             const popover = element.querySelector('.author-popover');
             const isOpening = !popover.classList.contains('active');
-
-            // Reset any previous repositioning
-            popover.style.bottom = '';
-            popover.style.top = '';
-            popover.style.left = '';
-            popover.style.transform = '';
-
             popover.classList.toggle('active');
 
-            // Reposition if overflowing viewport
             if (isOpening) {
                 loadNotesForPopover(authorName, index);
-                requestAnimationFrame(() => repositionPopover(popover));
+                positionPopover(popover, element);
             }
         }
 
-        function repositionPopover(popover) {
-            const rect = popover.getBoundingClientRect();
+        function positionPopover(popover, anchor) {
+            const anchorRect = anchor.getBoundingClientRect();
             const pad = 8;
 
-            // If overflowing top, flip to below the author name
-            if (rect.top < pad) {
-                popover.style.bottom = 'auto';
-                popover.style.top = 'calc(100% + 8px)';
+            // Temporarily make visible off-screen to measure
+            popover.style.left = '-9999px';
+            popover.style.top = '0';
+            const popRect = popover.getBoundingClientRect();
+            const pw = popRect.width;
+            const ph = popRect.height;
+
+            // Center horizontally on the anchor
+            let left = anchorRect.left + (anchorRect.width / 2) - (pw / 2);
+            // Default: position above the anchor
+            let top = anchorRect.top - ph - 8;
+
+            // If it would go above viewport, flip below
+            if (top < pad) {
+                top = anchorRect.bottom + 8;
             }
 
-            // If overflowing right edge
-            if (rect.right > window.innerWidth - pad) {
-                const overflow = rect.right - window.innerWidth + pad;
-                popover.style.left = `calc(50% - ${overflow}px)`;
+            // Clamp horizontal to stay within viewport
+            if (left < pad) left = pad;
+            if (left + pw > window.innerWidth - pad) left = window.innerWidth - pad - pw;
+
+            // If it would go below viewport, clamp to bottom
+            if (top + ph > window.innerHeight - pad) {
+                top = window.innerHeight - pad - ph;
             }
 
-            // If overflowing left edge
-            if (rect.left < pad) {
-                const overflow = pad - rect.left;
-                popover.style.left = `calc(50% + ${overflow}px)`;
-            }
+            popover.style.left = left + 'px';
+            popover.style.top = top + 'px';
         }
 
         async function loadNotesForPopover(authorName, index) {
@@ -3393,8 +3381,9 @@
                 if (data.error) {
                     alert(data.error);
                 } else {
+                    const candidateName = pendingCampaignCandidate.name;
                     closeCampaignSelectModal();
-                    alert(`${pendingCampaignCandidate.name} added to campaign!`);
+                    alert(`${candidateName} added to campaign!`);
                 }
             } catch (err) {
                 alert('Failed to add candidate to campaign');
